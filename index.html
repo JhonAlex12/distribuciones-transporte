@@ -1,0 +1,1658 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Aplicación interactiva de las distribuciones binomial, normal y muestral al caso del transporte universitario de 250 estudiantes en Cúcuta.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='12' width='56' height='34' rx='8' fill='%23C8102E'/%3E%3Crect x='11' y='18' width='12' height='11' rx='2' fill='white'/%3E%3Crect x='26' y='18' width='12' height='11' rx='2' fill='white'/%3E%3Crect x='41' y='18' width='12' height='11' rx='2' fill='white'/%3E%3Ccircle cx='18' cy='48' r='7' fill='%23111'/%3E%3Ccircle cx='46' cy='48' r='7' fill='%23111'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Distribuciones del Transporte Universitario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400..800&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: estilo de campaña deportiva. Franja negra superior, hero a todo el ancho con fotos reales en movimiento, carrusel de tarjetas por medio de transporte y, para cada parada, un banner fotográfico seguido de un laboratorio interactivo sobre fondo blanco. Negro, blanco y rojo; titulares condensados en mayúsculas. */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --soft:#F5F5F5; --ink:#111111; --muted:#6E6E73; --line:#E5E5E5;
+  --red:#D50032; --red-btn:#C8102E; --on-red:#FFFFFF; --red-wash:rgba(213,0,50,.08); --red-area:rgba(213,0,50,.2);
+  --btn:#111111; --on-btn:#FFFFFF;
+  --band:#111111; --on-band:#FFFFFF; --band-muted:#B8B8BC;
+  --bar-mute:#CACACB; --bar-dark:#3A3A3C; --dot1:#CACACB; --dot2:#7C7C80;
+  --f-display:"Anton","Impact","Arial Narrow",sans-serif;
+  --f-body:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A0A0A; --surface:#141414; --soft:#1C1C1E; --ink:#F5F5F5; --muted:#A1A1A6; --line:#2C2C2E;
+    --red:#FF3352; --red-btn:#E8173A; --on-red:#FFFFFF; --red-wash:rgba(255,51,82,.13); --red-area:rgba(255,51,82,.26);
+    --btn:#F5F5F5; --on-btn:#111111;
+    --band:#000000; --on-band:#FFFFFF; --band-muted:#B8B8BC;
+    --bar-mute:#48484A; --bar-dark:#D1D1D6; --dot1:#48484A; --dot2:#8E8E93;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A0A0A; --surface:#141414; --soft:#1C1C1E; --ink:#F5F5F5; --muted:#A1A1A6; --line:#2C2C2E;
+  --red:#FF3352; --red-btn:#E8173A; --on-red:#FFFFFF; --red-wash:rgba(255,51,82,.13); --red-area:rgba(255,51,82,.26);
+  --btn:#F5F5F5; --on-btn:#111111;
+  --band:#000000; --on-band:#FFFFFF; --band-muted:#B8B8BC;
+  --bar-mute:#48484A; --bar-dark:#D1D1D6; --dot1:#48484A; --dot2:#8E8E93;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{transition:background-color .3s,color .3s;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+h1,h2{font-family:var(--f-display);font-weight:400;text-transform:uppercase;letter-spacing:.005em;line-height:.93}
+h2{font-size:clamp(2.4rem,6vw,4.6rem)}
+h3{font:700 1.4rem/1.2 var(--f-body);letter-spacing:-.01em}
+h4{font:700 1.05rem/1.3 var(--f-body)}
+p{margin:0}
+a{color:inherit}
+sup{font-size:.7em;line-height:0}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px;border-radius:4px}
+.muted{color:var(--muted)}
+.nt{text-transform:none;letter-spacing:0}
+
+/* ---------- Franja y cabecera ---------- */
+.strip{background:var(--band);color:var(--on-band);font:500 12px/1.3 var(--f-body);letter-spacing:.04em;text-align:center}
+.strip .wrap{padding-block:9px}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:28px;padding-block:6px}
+.brand{font:400 22px/1 var(--f-display);text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;text-decoration:none}
+.brand span{color:var(--red)}
+.route{position:relative;flex:1;min-width:0;height:50px}
+.track{position:absolute;left:28px;right:28px;top:0;bottom:0}
+.track::before{content:"";position:absolute;left:0;right:0;top:15px;height:3px;background:var(--line)}
+.track-fill{position:absolute;left:0;top:15px;height:3px;width:calc(var(--p,0)*100%);background:var(--red)}
+.stop{position:absolute;top:9px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:var(--muted);font:500 12px var(--f-body);white-space:nowrap}
+.stop i{width:15px;height:15px;border-radius:50%;background:var(--surface);border:3px solid var(--line);transition:border-color .3s,transform .3s}
+.stop.on{color:var(--ink);font-weight:700}
+.stop.on i,.stop.past i{border-color:var(--ink)}
+.stop.on i{transform:scale(1.2)}
+.theme-btn{flex:none;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--soft);color:var(--ink);padding:9px 14px;font:600 13px var(--f-body);cursor:pointer;transition:background .2s}
+.theme-btn:hover{background:var(--line)}
+.theme-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.theme-btn .i-sun{display:none}
+.theme-btn.dark .i-sun{display:block}
+.theme-btn.dark .i-moon{display:none}
+.bus{position:absolute;top:3px;left:calc(var(--p,0)*100%);width:36px;height:24px;transform:translateX(-50%);pointer-events:none;transition:left .2s linear}
+.bus .b-body{fill:var(--red)}
+.bus .b-win{fill:var(--surface)}
+.bus .b-wheel{fill:var(--ink)}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:620px;display:flex;align-items:flex-end;overflow:hidden;background:var(--band);color:var(--on-band)}
+.slides{position:absolute;inset:0}
+.slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;animation:slide 28s linear infinite;animation-delay:calc(var(--i) * 7s - 1.5s)}
+.slides img:first-child{opacity:1}
+@keyframes slide{0%{opacity:0;transform:scale(1.03) translateX(0)}5%{opacity:1}25%{opacity:1}31%{opacity:0;transform:scale(1.16) translateX(-2.5%)}100%{opacity:0;transform:scale(1.16) translateX(-2.5%)}}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.25) 40%,rgba(0,0,0,.82) 100%)}
+.hero-txt{position:relative;z-index:1;width:100%;padding-block:56px 48px;display:grid;gap:18px}
+.tag{font:600 13px/1.3 var(--f-body);letter-spacing:.06em;text-transform:uppercase}
+.hero h1{font-size:clamp(3.2rem,10vw,8.4rem);max-width:12ch;color:#FFFFFF}
+.hero p.lead{max-width:56ch;font-size:1.12rem;color:#E9E9EB}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+.pill{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:12px 24px;background:var(--btn);color:var(--on-btn);font:600 15px var(--f-body);cursor:pointer;text-decoration:none;transition:transform .15s,opacity .2s,background .2s,box-shadow .2s}
+.pill:hover{opacity:.82}
+.pill:active{transform:scale(.97)}
+.pill.light{background:#FFFFFF;color:#111111}
+.pill.ghost-light{background:transparent;color:#FFFFFF;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.8)}
+.pill.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.pill.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--ink);opacity:1}
+.pill.red{background:var(--red-btn);color:var(--on-red)}
+.pill.small{padding:9px 18px;font-size:14px}
+.pill[disabled]{opacity:.4;pointer-events:none}
+.marquee{background:var(--band);color:var(--on-band);overflow:hidden;white-space:nowrap;border-top:1px solid rgba(255,255,255,.14)}
+.marquee-in{display:inline-flex;gap:28px;padding-block:14px;animation:marq 45s linear infinite;font:400 20px/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em}
+.marquee-in b{color:var(--red);font-weight:400}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.stat{padding:28px 24px;border-right:1px solid var(--line);display:grid;gap:6px}
+.stat:last-child{border-right:0}
+.stat .v{font:400 clamp(2.4rem,5vw,3.8rem)/1 var(--f-display);font-variant-numeric:tabular-nums}
+.stat .v small{font-size:.45em;margin-left:4px;color:var(--muted)}
+.stat .l{font-size:14px;color:var(--muted)}
+.stat.hot .v{color:var(--red)}
+
+/* ---------- Secciones ---------- */
+.sec{padding-block:0 96px}
+.sec-body{display:grid;gap:56px;padding-top:56px}
+.lead2{font-size:1.15rem;max-width:68ch;color:var(--muted)}
+.lead2 b{color:var(--ink)}
+.banner{position:relative;height:440px;overflow:hidden;background:var(--band);color:#FFFFFF;display:flex;align-items:flex-end}
+.banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 22s ease-in-out infinite alternate}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,.35) 55%,rgba(0,0,0,.1) 100%),linear-gradient(0deg,rgba(0,0,0,.55),transparent 55%)}
+.banner .wrap{position:relative;z-index:1;width:100%;padding-block:40px;display:grid;gap:12px}
+.banner h2{font-size:clamp(2.8rem,7.5vw,6rem);color:#FFFFFF;max-width:14ch}
+.banner p{font-size:1.15rem;max-width:44ch;color:#EDEDEF}
+.banner .tag{display:inline-flex;align-items:center;gap:10px}
+.banner .tag b{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--red-btn);color:#FFFFFF;font:400 16px var(--f-display)}
+.banner .credit{position:absolute;right:12px;bottom:8px;z-index:1;font-size:11px;color:rgba(255,255,255,.72)}
+@keyframes kb{from{transform:scale(1.06) translate3d(-1.5%,0,0)}to{transform:scale(1.16) translate3d(1.5%,-1%,0)}}
+
+.block{display:grid;gap:20px}
+.block-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 32px}
+.block-head p{color:var(--muted);max-width:66ch}
+.kicker{font:600 13px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+.ficha{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0}
+.ficha>div{background:var(--soft);border-radius:8px;padding:16px 18px;min-width:0}
+.ficha dt{font:600 12px/1.3 var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ficha dd{margin:6px 0 0;font:700 1.15rem/1.3 var(--f-body);font-variant-numeric:tabular-nums}
+.ficha dd small{display:block;font:400 13px/1.4 var(--f-body);color:var(--muted);margin-top:3px}
+.formulas{display:flex;flex-wrap:wrap;gap:12px}
+.formula{display:inline-block;font-family:var(--f-mono);font-size:1.02rem;border:1.5px solid var(--ink);border-radius:999px;padding:10px 20px}
+.formula span{font:600 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:12px}
+.note{background:var(--soft);border-radius:8px;padding:16px 20px;font-size:15px;border-left:4px solid var(--red)}
+.note b{font-weight:700}
+
+.crit{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;list-style:none;margin:0;padding:0}
+.crit li{border-top:3px solid var(--ink);padding:14px 2px 0;display:grid;gap:6px;transition:border-color .3s}
+.crit li:hover{border-color:var(--red)}
+.crit .lt{display:flex;align-items:baseline;gap:10px;font-weight:700}
+.crit .lt i{font:400 22px/1 var(--f-display);font-style:normal;color:var(--red);text-transform:uppercase}
+.crit p{font-size:14px;color:var(--muted)}
+
+/* ---------- Carrusel de medios ---------- */
+.rail-wrap{display:grid;gap:18px}
+.rail-nav{display:flex;gap:10px}
+.rail-nav button{width:44px;height:44px;border-radius:50%;border:0;background:var(--soft);font-size:20px;cursor:pointer;transition:background .2s}
+.rail-nav button:hover{background:var(--line)}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(250px,30%,380px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px;scrollbar-width:thin}
+.tcard{scroll-snap-align:start;display:grid;gap:12px;align-content:start;min-width:0}
+.tmedia{position:relative;aspect-ratio:4/5;max-width:100%;overflow:hidden;background:var(--soft)}
+.tmedia img{width:100%;height:100%;object-fit:cover;display:block;animation:kb var(--d,18s) ease-in-out infinite alternate;animation-delay:var(--dl,0s)}
+.tmedia::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.45),transparent 42%)}
+.speed{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.22;background:repeating-linear-gradient(90deg,transparent 0 90px,rgba(255,255,255,.6) 90px 92px,transparent 92px 230px);background-size:460px 100%;mask-image:linear-gradient(180deg,transparent 15%,#000 40%,#000 65%,transparent 85%);-webkit-mask-image:linear-gradient(180deg,transparent 15%,#000 40%,#000 65%,transparent 85%);animation:streak 1.4s linear infinite;transition:opacity .35s}
+.tcard:hover .speed,.tcard:focus-within .speed{opacity:.6}
+@keyframes streak{to{background-position:-460px 0}}
+.badge{position:absolute;left:12px;top:12px;z-index:2;background:#FFFFFF;color:#111111;border-radius:999px;padding:6px 12px;font:700 12.5px var(--f-body)}
+.badge.hot{background:#C8102E;color:#FFFFFF}
+.tname{position:absolute;left:14px;bottom:10px;z-index:2;font:400 2.3rem/1 var(--f-display);text-transform:uppercase;color:#FFFFFF}
+.tinfo{display:grid;gap:4px}
+.tinfo .row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.tinfo b{font-variant-numeric:tabular-nums}
+.tbar{height:4px;background:var(--line);margin-top:6px}
+.tbar i{display:block;height:100%;background:var(--red);transform-origin:left;animation:grow 1.2s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.tlink{justify-self:start;margin-top:6px;border:0;background:none;padding:0;font:600 14px var(--f-body);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.tlink:hover{color:var(--red)}
+.facts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:0}
+.facts div{background:var(--soft);border-radius:8px;padding:14px 16px}
+.facts dt{font:600 12px var(--f-body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.facts dd{margin:4px 0 0;font:400 1.7rem/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.paradas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.parada{position:relative;display:grid;gap:8px;text-decoration:none;background:var(--soft);border-radius:8px;padding:22px;transition:background .25s,color .25s}
+.parada:hover{background:var(--band);color:#FFFFFF}
+.parada:hover p{color:#D6D6D9}
+.parada .pn{font:400 2.6rem/1 var(--f-display);color:var(--red)}
+.parada h4{font:400 1.8rem/1 var(--f-display);text-transform:uppercase}
+.parada p{font-size:14px;color:var(--muted)}
+.parada .go{font-size:14px;font-weight:700}
+
+/* ---------- Controles ---------- */
+.field{display:grid;gap:8px}
+.flabel,.field>label{font:600 12px/1.2 var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rng{display:flex;align-items:center;gap:12px}
+.rng input[type=range]{flex:1;min-width:0;accent-color:var(--red-btn);height:28px}
+.rng output{min-width:52px;text-align:center;font:400 1.35rem var(--f-display);font-variant-numeric:tabular-nums;background:var(--soft);border-radius:999px;padding:4px 10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:0;background:var(--soft);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,color .2s}
+.seg button:hover{background:var(--line)}
+.seg button[aria-pressed="true"]{background:var(--btn);color:var(--on-btn)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font:500 13px var(--f-mono);cursor:pointer;transition:border-color .2s,background .2s}
+.chip:hover{border-color:var(--ink)}
+.chip.on{border-color:var(--red);background:var(--red-wash)}
+.nums{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.num{display:inline-flex;align-items:center;border-radius:999px;background:var(--soft);overflow:hidden}
+.num input{width:80px;border:0;background:transparent;text-align:center;font:400 1.3rem var(--f-display);font-variant-numeric:tabular-nums;padding:6px 2px;-moz-appearance:textfield}
+.num input::-webkit-outer-spin-button,.num input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.num button{border:0;background:transparent;width:38px;align-self:stretch;font-size:18px;cursor:pointer}
+.num button:hover{background:var(--line)}
+.numlab{display:grid;gap:6px}
+.numlab>span{font:600 12px var(--f-body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.check{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--red-btn)}
+
+/* ---------- Laboratorio ---------- */
+.lab{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.15fr);gap:36px;border-top:3px solid var(--ink);padding-top:28px}
+.lab-side{display:grid;gap:22px;align-content:start;min-width:0}
+.lab-main{display:grid;gap:16px;align-content:start;min-width:0;position:sticky;top:86px}
+.ctrl{display:grid;gap:18px}
+.pinfo{font-size:14px;color:var(--muted);background:var(--soft);border-radius:8px;padding:10px 14px}
+.pinfo b{color:var(--ink)}
+.result{background:var(--band);color:#FFFFFF;border-radius:8px;padding:20px 22px;display:grid;gap:8px}
+.res-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+.res-n{font:400 3.4rem/1 var(--f-display);font-variant-numeric:tabular-nums;color:#FFFFFF}
+.res-f{font:500 15px var(--f-mono);color:#D6D6D9}
+.result p{font-size:15px;color:#ECECEE}
+.result b{color:#FFFFFF}
+.result .real{font-size:14px;color:var(--band-muted)}
+.result .warn{color:#FF8A9B}
+.result .f{background:rgba(255,255,255,.08);color:#F2F2F4}
+.steps{list-style:none;counter-reset:st;margin:0;padding:0;display:grid;gap:16px}
+.steps>li{counter-increment:st;display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;align-items:start}
+.steps>li::before{content:counter(st);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--btn);color:var(--on-btn);font:400 15px var(--f-display)}
+.steps .t{font-weight:700;margin-bottom:6px}
+.f{font-family:var(--f-mono);font-size:13.5px;line-height:1.7;background:var(--soft);border-radius:8px;padding:8px 12px;white-space:normal;overflow-wrap:anywhere}
+.f+.f{margin-top:6px}
+.f b{font-weight:600}
+.ok{color:#2E8540;font-weight:700}
+.warn{color:var(--red);font-weight:700}
+.chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 16px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}
+.lg{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;background:var(--c)}
+.sw.line{height:3px;width:18px;border-radius:2px}
+.sw.dot{border-radius:50%;width:11px;height:11px}
+.sw.area{background:var(--red-area)}
+.sw.ring{background:transparent;box-shadow:inset 0 0 0 2px var(--ink)}
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:var(--f-body);font-size:12px;fill:var(--muted)}
+.chart .lbl{fill:var(--ink);font-weight:700}
+.chart .big{fill:var(--ink);font:400 26px var(--f-display)}
+.chart .ttl{fill:var(--muted);font-size:12px}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .axis{stroke:var(--ink);stroke-width:1}
+.bar{fill:var(--bar-mute);transition:fill .3s}
+.bar.on{fill:var(--red)}
+.hbar,.mbar{fill:var(--bar-dark)}
+.curve{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.mline{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.mline.red{stroke:var(--red);stroke-width:2.5}
+.area{fill:var(--red-area)}
+.bound{stroke:var(--ink);stroke-width:1.5}
+.bound.dash{stroke-dasharray:4 4}
+.muline{stroke:var(--muted);stroke-width:1.25;stroke-dasharray:2 4}
+.simdot{fill:var(--ink);stroke:var(--surface);stroke-width:2}
+.hz{fill:transparent;cursor:crosshair}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th{font:600 12px var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--ink)}
+.tbl td.r,.tbl th.r{text-align:right}
+.tbl tr.on td{background:var(--red-wash)}
+.tbl tr.tot td{font-weight:700;border-bottom:0}
+.tbl .mono{font-family:var(--f-mono);font-size:13px}
+.zbox{margin-top:8px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.zmini{border-collapse:collapse;font:12px var(--f-mono);font-variant-numeric:tabular-nums}
+.zmini th,.zmini td{padding:3px 8px;border:1px solid var(--line);text-align:right;color:var(--muted)}
+.zmini th{font-weight:500;background:var(--soft)}
+.zmini th.hc,.zmini th.hr{color:var(--on-btn);background:var(--btn);font-weight:600}
+.zmini td.hit{background:var(--red-btn);color:#FFFFFF;font-weight:600}
+.zgo{border:0;background:none;padding:0;font:700 13px var(--f-body);text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;text-underline-offset:4px;cursor:pointer}
+.zgo:hover{color:var(--red)}
+
+/* ---------- Simulación ---------- */
+.sim{background:var(--soft);border-radius:8px;padding:28px;display:grid;gap:20px}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.scard{background:var(--surface);border-radius:8px;padding:14px;display:grid;gap:2px;border-top:4px solid var(--bar-mute);animation:pop .45s cubic-bezier(.2,1.4,.4,1) both}
+.scard .sid{font:500 12px var(--f-mono);color:var(--muted)}
+.scard b{font:400 1.9rem/1.05 var(--f-display);font-variant-numeric:tabular-nums}
+.scard span{font-size:13px;color:var(--muted)}
+.scard em{font-style:normal;font-size:12px;font-weight:700;justify-self:start;border-radius:999px;padding:3px 10px;margin-top:6px;background:var(--soft)}
+.scard.yes{border-top-color:var(--red)}
+.scard.yes em{background:var(--red-btn);color:#FFFFFF}
+@keyframes pop{from{transform:scale(.8) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.simsum b{font-variant-numeric:tabular-nums}
+.empty{grid-column:1/-1;border:1.5px dashed var(--bar-mute);border-radius:8px;padding:18px;color:var(--muted);text-align:center;font-size:14px}
+.mue-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+.pop{display:block;width:100%;height:auto}
+.pop circle{transition:opacity .35s}
+.pop .c1{fill:var(--dot1)} .pop .c2{fill:var(--dot2)} .pop .c3{fill:var(--red)}
+.pop.sampling circle{opacity:.18}
+.pop.sampling circle.sel{opacity:1;stroke:var(--ink);stroke-width:2.5}
+.sinfo{font-size:15px;min-height:48px;background:var(--surface);border-radius:8px;padding:12px 14px}
+.sinfo b{font-variant-numeric:tabular-nums}
+.mstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0}
+.mstats>div{background:var(--surface);border-radius:8px;padding:12px 14px;min-width:0}
+.mstats dt{font:600 11.5px/1.3 var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.mstats dd{margin:4px 0 0;font:400 1.7rem/1.05 var(--f-display);font-variant-numeric:tabular-nums}
+.mstats dd small{display:block;font:400 12.5px/1.35 var(--f-body);color:var(--muted);margin-top:3px}
+.mlist{display:flex;flex-wrap:wrap;gap:6px}
+.mlist span{font:500 12.5px var(--f-mono);background:var(--surface);border-radius:999px;padding:4px 10px;font-variant-numeric:tabular-nums}
+.mlist span.new{background:var(--red-btn);color:#FFFFFF;animation:pop .4s both}
+
+/* ---------- Análisis ---------- */
+.cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.acard{border-top:3px solid var(--ink);padding-top:16px;display:grid;gap:10px;align-content:start}
+.acard h4{font:400 1.7rem/1 var(--f-display);text-transform:uppercase}
+.acard p{font-size:15px;color:var(--muted)}
+.acard p b{color:var(--ink)}
+
+/* ---------- Cierre ---------- */
+.reco{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.reco article{display:grid;gap:12px;align-content:start}
+.reco .rimg{aspect-ratio:16/10;max-width:100%;overflow:hidden;background:var(--soft)}
+.reco .rimg img{width:100%;height:100%;object-fit:cover;display:block;animation:kb 20s ease-in-out infinite alternate}
+.reco h4{font:400 1.6rem/1 var(--f-display);text-transform:uppercase}
+.reco p{font-size:14.5px;color:var(--muted)}
+
+/* ---------- Tabla Z ---------- */
+.howto{list-style:none;counter-reset:h;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.howto li{counter-increment:h;background:var(--soft);border-radius:8px;padding:16px;display:grid;gap:4px}
+.howto li::before{content:counter(h);font:400 2rem/1 var(--f-display);color:var(--red)}
+.howto b{font-weight:700}
+.howto span{font-size:14px;color:var(--muted)}
+.zfind{display:flex;gap:8px;align-items:center}
+.zcase{display:grid;gap:10px}
+.zc{background:var(--soft);border-radius:8px;padding:14px 16px;display:grid;gap:6px}
+.zc .f{background:var(--surface)}
+.zc p{font-size:14px;color:var(--muted)}
+.zc p b{color:var(--ink)}
+.zchart{touch-action:pan-y;cursor:ew-resize;user-select:none;-webkit-user-select:none}
+.zarea{fill:var(--red-area)}
+.zhandle{fill:var(--red);stroke:var(--surface);stroke-width:3}
+.zscroll{position:relative;max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.zt{border-collapse:separate;border-spacing:0;font:12.5px var(--f-mono);font-variant-numeric:tabular-nums;width:100%}
+.zt th,.zt td{padding:6px 9px;text-align:right;border-bottom:1px solid var(--line);border-right:1px solid var(--line);white-space:nowrap}
+.zt thead th{position:sticky;top:0;z-index:2;background:var(--soft);color:var(--muted);font-weight:500}
+.zt tbody th{position:sticky;left:0;z-index:1;background:var(--soft);color:var(--muted);font-weight:500}
+.zt thead th:first-child{left:0;z-index:3}
+.zt td{color:var(--muted);cursor:pointer;transition:background .12s,color .12s}
+.zt .hv{background:var(--line);color:var(--ink)}
+.zt tr.rowon td,.zt td.colon{background:var(--red-wash);color:var(--ink)}
+.zt th.hon{background:var(--btn);color:var(--on-btn);font-weight:700}
+.zt td.used{box-shadow:inset 0 0 0 2px var(--ink)}
+.zt td.sel{background:var(--red-btn);color:#FFFFFF;font-weight:700}
+
+footer{background:var(--band);color:var(--band-muted)}
+footer .wrap{padding-block:40px;display:grid;gap:22px;font-size:13px}
+footer .ft{display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:space-between;align-items:baseline;color:#FFFFFF;font-size:14px}
+footer .fbrand{font:400 22px/1 var(--f-display);text-transform:uppercase}
+footer .fbrand span{color:var(--red)}
+footer ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px 24px}
+footer a{color:#E5E5E7}
+
+#tip{position:fixed;left:0;top:0;z-index:100;pointer-events:none;background:var(--btn);color:var(--on-btn);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.45;display:grid;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#tip b{font-weight:700}
+
+.reveal{transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.reveal.pending{opacity:.3;transform:translateY(28px)}
+
+@media (max-width:980px){
+  .lab,.mue-grid{grid-template-columns:minmax(0,1fr)!important}
+  .lab-main{position:static}
+  .cards3,.paradas,.reco{grid-template-columns:minmax(0,1fr)}
+  .facts{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .howto{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rail{grid-auto-columns:clamp(240px,42%,340px)}
+}
+@media (max-width:700px){
+  .brand{display:none}
+  .theme-btn .tlabel{display:none}
+  .theme-btn{padding:9px}
+  .topbar .wrap{gap:12px}
+  .stop span{font-size:10px}
+  .track{left:18px;right:18px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat:nth-child(2){border-right:0}
+  .stat{border-bottom:1px solid var(--line)}
+  .row2{grid-template-columns:minmax(0,1fr)}
+  .mstats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rail{grid-auto-columns:78%}
+  .sim{padding:18px}
+  .banner{height:380px}
+  .hero{min-height:560px}
+  .sec{padding-block:0 64px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .slides img{opacity:0} .slides img:first-child{opacity:1}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="strip"><div class="wrap">Caso 4 · 250 estudiantes de Cúcuta y municipios aledaños · Estadística y Probabilidad</div></div>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#inicio">Transporte<span>·</span>U</a>
+    <nav class="route" aria-label="Recorrido de la página">
+      <div class="track" id="track">
+        <div class="track-fill"></div>
+        <svg class="bus" viewBox="0 0 36 24" aria-hidden="true"><rect class="b-body" x="1" y="2" width="34" height="16" rx="3"/><rect class="b-win" x="4" y="5" width="7" height="6" rx="1"/><rect class="b-win" x="13" y="5" width="7" height="6" rx="1"/><rect class="b-win" x="22" y="5" width="7" height="6" rx="1"/><circle class="b-wheel" cx="10" cy="19" r="4"/><circle class="b-wheel" cx="27" cy="19" r="4"/></svg>
+      </div>
+    </nav>
+    <button type="button" class="theme-btn" id="themeBtn" aria-label="Cambiar a modo oscuro">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+      <span class="tlabel">Modo oscuro</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero" id="inicio">
+  <div class="slides" aria-hidden="true">
+    <img src="img/hero-1.webp" alt="" style="--i:0">
+    <img src="img/hero-2.webp" alt="" style="--i:1">
+    <img src="img/hero-3.webp" alt="" style="--i:2">
+    <img src="img/hero-4.webp" alt="" style="--i:3">
+  </div>
+  <div class="wrap hero-txt">
+    <span class="tag">Universidad Simón Bolívar · Cúcuta · Grupo 4</span>
+    <h1>¿Cuánto tardan en llegar a la U?</h1>
+    <p class="lead">Las distribuciones binomial, normal y muestral aplicadas a los tiempos de desplazamiento de 250 estudiantes. Cada cálculo va paso a paso con la tabla Z, y puedes cambiar los valores para ver cómo responde cada modelo.</p>
+    <div class="cta">
+      <a class="pill light" href="#caso">Empezar el recorrido</a>
+      <a class="pill ghost-light" href="#simulacion">Ver la simulación de muestras</a>
+    </div>
+  </div>
+</section>
+<div class="marquee" aria-hidden="true"><div class="marquee-in" id="marq"></div></div>
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><span class="v count" data-to="250" data-dec="0">250</span><span class="l">estudiantes en la base</span></div>
+    <div class="stat"><span class="v"><span class="count" data-to="34.24" data-dec="2">34,24</span><small>min</small></span><span class="l">tiempo promedio (μ)</span></div>
+    <div class="stat"><span class="v"><span class="count" data-to="12.88" data-dec="2">12,88</span><small>min</small></span><span class="l">desviación estándar</span></div>
+    <div class="stat hot"><span class="v count" data-to="66" data-dec="0">66</span><span class="l">tardan más de 40 min (26,4 %)</span></div>
+  </div>
+</div>
+
+<main>
+<!-- ===================== DATOS ===================== -->
+<section class="sec" id="caso">
+  <div class="wrap sec-body">
+    <div class="block reveal">
+      <span class="kicker">Punto de partida · La base de datos</span>
+      <h2>Seis formas de llegar</h2>
+      <p class="lead2">Cada registro es un estudiante, con su medio de transporte, municipio, programa y los minutos que tarda en llegar. El tiempo de desplazamiento conecta las tres distribuciones y el evento que más nos interesa es tardar <b>más de 40 minutos</b>.</p>
+    </div>
+    <div class="rail-wrap reveal">
+      <div class="block-head"><h3>Medios de transporte del caso</h3><div class="rail-nav"><button type="button" id="railPrev" aria-label="Ver medios anteriores">‹</button><button type="button" id="railNext" aria-label="Ver más medios">›</button></div></div>
+      <div class="rail" id="rail"></div>
+    </div>
+    <div class="block reveal">
+      <h3>Tiempo de desplazamiento de los 250</h3>
+      <dl class="facts" id="facts"></dl>
+      <p class="note">El bus concentra <b id="busLargos">49 de los 66</b> viajes de más de 40 minutos. Por eso el evento "tardar más de 40 min" está muy ligado al transporte público.</p>
+    </div>
+    <div class="block reveal">
+      <h3>El recorrido del análisis</h3>
+      <div class="paradas">
+        <a class="parada" href="#binomial"><span class="pn">01</span><h4>Binomial</h4><p>Si escogemos 5 estudiantes, ¿cuántos tardarán más de 40 minutos?</p><span class="go">Ir a la parada →</span></a>
+        <a class="parada" href="#normal"><span class="pn">02</span><h4>Normal</h4><p>¿Qué tan probable es que un estudiante tarde cierto tiempo?</p><span class="go">Ir a la parada →</span></a>
+        <a class="parada" href="#muestral"><span class="pn">03</span><h4>Muestral</h4><p>¿Cuánto cambia el tiempo promedio entre grupos de 36 estudiantes?</p><span class="go">Ir a la parada →</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BINOMIAL ===================== -->
+<section class="sec" id="binomial">
+  <header class="banner">
+    <img src="img/b-binomial.webp" alt="Bus intermunicipal de dos pisos en Cúcuta" loading="lazy">
+    <div class="wrap"><span class="tag"><b>1</b>Parada 1 · Variable aleatoria discreta</span><h2>Distribución binomial</h2><p>¿Cuántos de 5 estudiantes tardan más de 40 minutos en llegar?</p></div>
+    <span class="credit" data-credit="b-binomial"></span>
+  </header>
+  <div class="wrap sec-body">
+    <p class="lead2 reveal">Seleccionamos 5 estudiantes al azar de la base, con reemplazo, y contamos cuántos tardan más de 40 minutos. Ese conteo X solo puede valer 0, 1, 2, 3, 4 o 5, así que es una <b>variable discreta</b>.</p>
+    <div class="block reveal">
+      <h3>Planteamiento del experimento</h3>
+      <dl class="ficha">
+        <div><dt>Experimento</dt><dd>5 selecciones al azar<small>con reemplazo, de los 250 registros</small></dd></div>
+        <div><dt>Éxito</dt><dd>Tarda más de 40 min<small>66 estudiantes</small></dd></div>
+        <div><dt>Fracaso</dt><dd>Tarda 40 min o menos<small>184 estudiantes</small></dd></div>
+        <div><dt>Parámetros</dt><dd>n = 5 · p = 0,264<small>q = 1 − p = 0,736</small></dd></div>
+        <div><dt>Valor esperado</dt><dd>E(X) = np = 1,32<small>estudiantes por cada 5 seleccionados</small></dd></div>
+        <div><dt>Desviación</dt><dd>σ = √(npq) = 0,99<small>varianza npq = 0,9715</small></dd></div>
+      </dl>
+      <div class="formulas"><div class="formula"><span>Fórmula</span>P(X = x) = C(n, x) · p<sup>x</sup> · q<sup>n−x</sup></div><div class="formula"><span>Combinación</span>C(n, x) = n! / [x! (n − x)!]</div></div>
+    </div>
+    <div class="block reveal">
+      <h3>Los 5 criterios de la binomial, aplicados al caso</h3>
+      <ul class="crit">
+        <li><span class="lt"><i>a</i>Número fijo de pruebas</span><p>Siempre hacemos n = 5 selecciones de estudiantes.</p></li>
+        <li><span class="lt"><i>b</i>Dos resultados</span><p>Cada estudiante tarda más de 40 minutos (éxito) o 40 minutos o menos (fracaso).</p></li>
+        <li><span class="lt"><i>c</i>Probabilidad fija</span><p>p = 66/250 = 0,264 en cada selección, porque devolvemos el registro antes de la siguiente.</p></li>
+        <li><span class="lt"><i>d</i>Pruebas independientes</span><p>Al seleccionar con reemplazo, un resultado no cambia la probabilidad del siguiente.</p></li>
+        <li><span class="lt"><i>e</i>Contamos los éxitos</span><p>Nos interesa X, el número de estudiantes con viaje largo entre los 5.</p></li>
+      </ul>
+    </div>
+    <div class="block reveal" id="binLab">
+      <div class="block-head"><h3>Calculadora binomial paso a paso</h3><p>Elige una pregunta del caso o arma la tuya. Puedes cambiar n, el umbral de minutos y el grupo de estudiantes; p se recalcula con la base real.</p></div>
+      <div class="lab">
+        <div class="lab-side">
+          <div class="ctrl">
+            <div class="row2">
+              <div class="field"><label for="bN">Número de ensayos (<span class="nt">n</span>)</label><div class="rng"><input type="range" id="bN" min="1" max="15" value="5"><output id="bNo" for="bN">5</output></div></div>
+              <div class="field"><label for="bU">Umbral de tiempo (min)</label><div class="rng"><input type="range" id="bU" min="15" max="65" value="40"><output id="bUo" for="bU">40</output></div></div>
+            </div>
+            <div class="field"><span class="flabel">Grupo de estudiantes</span><div class="seg" id="bMed"></div></div>
+            <p class="pinfo" id="bP"></p>
+            <div class="field"><span class="flabel">Preguntas del caso</span><div class="chips" id="bPre"></div></div>
+            <div class="field"><span class="flabel">Tipo de pregunta</span><div class="seg" id="bType"></div></div>
+            <div class="numlab"><span>Valor de <span class="nt">x</span></span><div class="num"><button type="button" data-for="bX" data-d="-1" aria-label="Restar uno">−</button><input type="number" id="bX" min="0" max="5" step="1" value="2" aria-label="Valor de x"><button type="button" data-for="bX" data-d="1" aria-label="Sumar uno">+</button></div></div>
+          </div>
+          <div class="result" id="bRes"></div>
+          <ol class="steps" id="bSteps"></ol>
+        </div>
+        <div class="lab-main">
+          <div class="chart-head"><h4 id="bChartT">Distribución de X</h4><div class="legend" id="bLeg"></div></div>
+          <svg id="binChart" class="chart" role="img" aria-label="Gráfica de barras de la distribución binomial"></svg>
+          <div class="tbl-wrap"><table class="tbl" id="bTable"></table></div>
+        </div>
+      </div>
+    </div>
+    <div class="sim reveal">
+      <div class="block-head"><div><h3>Haz el experimento con los registros reales</h3><p class="muted" style="margin-top:6px">Cada selección toma un estudiante real de la base. Repite el experimento muchas veces y compara lo simulado con la fórmula: los puntos se acercan a las barras.</p></div>
+        <div class="btns"><button type="button" class="pill small" id="bOnce">Seleccionar 5 estudiantes</button><button type="button" class="pill small ghost" id="bMany">Repetir 1.000 veces</button><button type="button" class="pill small ghost" id="bReset">Borrar</button></div></div>
+      <div class="cards" id="bCards"><div class="empty">Pulsa "Seleccionar 5 estudiantes" para sacar estudiantes reales de la base.</div></div>
+      <p class="simsum" id="bSimSum"></p>
+    </div>
+    <div class="cards3 reveal">
+      <div class="acard"><h4>Análisis</h4><p>El valor más probable es <b>X = 1 (38,73 %)</b>. La probabilidad de encontrar <b>al menos uno</b> con viaje largo en 5 selecciones es <b>78,40 %</b>, mucho mayor que el 26,4 % de un estudiante individual: cada selección es una nueva oportunidad de que aparezca.</p></div>
+      <div class="acard"><h4>Aplicación al caso</h4><p>Si se arma al azar un grupo de trabajo de 5 estudiantes, lo esperado es que <b>al menos uno</b> llegue después de más de 40 minutos de viaje. Entre usuarios de bus, p sube a 0,69 y el problema es mucho mayor.</p></div>
+      <div class="acard"><h4>Limitaciones</h4><p>Suponemos selección <b>con reemplazo</b> y p constante. Sin reemplazo el modelo exacto sería la hipergeométrica, aunque con 250 registros y n = 5 la diferencia es pequeña. Además, p cambia mucho según el medio de transporte.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NORMAL ===================== -->
+<section class="sec" id="normal">
+  <header class="banner">
+    <img src="img/b-normal.webp" alt="Avenida 0 de Cúcuta con árboles y tráfico" loading="lazy">
+    <div class="wrap"><span class="tag"><b>2</b>Parada 2 · Variable aleatoria continua</span><h2>Distribución normal</h2><p>¿Qué tan probable es cada tiempo de viaje?</p></div>
+    <span class="credit" data-credit="b-normal"></span>
+  </header>
+  <div class="wrap sec-body">
+    <p class="lead2 reveal">Ahora la variable es el tiempo de un estudiante, que puede tomar cualquier valor dentro de un intervalo. Con la media y la desviación estándar de la base construimos la campana y calculamos áreas con <b>Z = (X − μ) / σ</b>.</p>
+    <div class="block reveal">
+      <h3>Planteamiento</h3>
+      <dl class="ficha">
+        <div><dt>Variable (X)</dt><dd>Tiempo de desplazamiento<small>en minutos, variable continua</small></dd></div>
+        <div><dt>Media (<span class="nt">μ</span>)</dt><dd>34,24 min<small>promedio de los 250 registros</small></dd></div>
+        <div><dt>Desviación (<span class="nt">σ</span>)</dt><dd>12,88 min<small>desviación de la base (divide entre n − 1 = 249)</small></dd></div>
+        <div><dt>Rango real</dt><dd>8 a 73 min<small>mínimo y máximo de la base</small></dd></div>
+        <div><dt>Corrección ±0,5</dt><dd>No se aplica<small>X es continua: se trabaja con su valor directo</small></dd></div>
+      </dl>
+      <div class="formulas"><div class="formula"><span>Estandarización</span>Z = (X − μ) / σ</div><div class="formula"><span>Tabla Z</span>Φ(z) = área a la izquierda de z</div></div>
+    </div>
+    <div class="block reveal">
+      <div class="block-head"><h3>Calculadora normal con tabla Z</h3><p>Escribe los minutos o usa las preguntas del caso. El área sombreada es la probabilidad.</p></div>
+      <div class="lab">
+        <div class="lab-side">
+          <div class="ctrl">
+            <div class="field"><span class="flabel">Preguntas del caso</span><div class="chips" id="nPre"></div></div>
+            <div class="field"><span class="flabel">Tipo de pregunta</span><div class="seg" id="nType"></div></div>
+            <div class="nums">
+              <div class="numlab"><span><span class="nt">a</span> (min)</span><div class="num"><button type="button" data-for="nA" data-d="-1" aria-label="Restar uno">−</button><input type="number" id="nA" min="-10" max="90" step="0.5" value="40" aria-label="Valor a"><button type="button" data-for="nA" data-d="1" aria-label="Sumar uno">+</button></div></div>
+              <div class="numlab" id="nBw"><span><span class="nt">b</span> (min)</span><div class="num"><button type="button" data-for="nB" data-d="-1" aria-label="Restar uno">−</button><input type="number" id="nB" min="-10" max="90" step="0.5" value="40" aria-label="Valor b"><button type="button" data-for="nB" data-d="1" aria-label="Sumar uno">+</button></div></div>
+            </div>
+          </div>
+          <div class="result" id="nRes"></div>
+          <ol class="steps" id="nSteps"></ol>
+        </div>
+        <div class="lab-main">
+          <div class="chart-head"><h4>Curva normal N(34,24; 12,88)</h4><div class="legend"><span class="lg"><i class="sw line" style="--c:var(--ink)"></i>Modelo normal</span><span class="lg"><i class="sw area"></i>Probabilidad pedida</span></div></div>
+          <svg id="normChart" class="chart" role="img" aria-label="Curva normal con el área de la probabilidad sombreada"></svg>
+          <p class="muted" style="font-size:13px">Debajo del eje se ven los minutos (X) y su valor estandarizado (Z), como en los ejemplos de clase.</p>
+        </div>
+      </div>
+    </div>
+    <div class="block reveal">
+      <div class="block-head"><h3>Datos reales frente al modelo</h3><p>Las barras son los 250 tiempos reales; la línea roja es la cantidad de estudiantes que predice la normal en cada intervalo de 5 minutos.</p></div>
+      <div class="lab" style="grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr)">
+        <div class="lab-side">
+          <div class="chart-head"><h4>Tiempos reales vs. curva normal</h4><div class="legend"><span class="lg"><i class="sw" style="--c:var(--bar-dark)"></i>Estudiantes reales</span><span class="lg"><i class="sw line" style="--c:var(--red)"></i>Predicción del modelo</span></div></div>
+          <svg id="histChart" class="chart" role="img" aria-label="Histograma de los tiempos reales con la curva normal"></svg>
+        </div>
+        <div class="lab-side">
+          <div class="tbl-wrap"><table class="tbl" id="cmpTable"></table></div>
+          <p class="note" style="font-size:14px">El modelo sobreestima los viajes de más de 40 minutos (32,64 % frente a 26,40 % real) y subestima los de 20 a 40. La normal es una <b>aproximación</b>: incluso asigna <b id="negP">0,39 %</b> a tiempos negativos, que no existen.</p>
+        </div>
+      </div>
+    </div>
+    <div class="block reveal">
+      <div class="block-head"><h3>Aproximación normal a la binomial</h3><p>Cuando n es grande, la binomial se parece a una normal con μ = np y σ = √(npq). Como X es discreta, se corrige con ±0,5. Se necesita np ≥ 5 y nq ≥ 5; con n = 5 no se cumple (np = 1,32), por eso usamos un grupo más grande.</p></div>
+      <div class="lab">
+        <div class="lab-side">
+          <div class="ctrl">
+            <div class="field"><label for="aN">Estudiantes seleccionados (<span class="nt">n</span>)</label><div class="rng"><input type="range" id="aN" min="5" max="100" value="30"><output id="aNo" for="aN">30</output></div></div>
+            <div class="field"><span class="flabel">Tipo de pregunta</span><div class="seg" id="aType"></div></div>
+            <div class="numlab"><span>Valor de <span class="nt">x</span></span><div class="num"><button type="button" data-for="aX" data-d="-1" aria-label="Restar uno">−</button><input type="number" id="aX" min="0" max="30" step="1" value="10" aria-label="Valor de x en la aproximación"><button type="button" data-for="aX" data-d="1" aria-label="Sumar uno">+</button></div></div>
+          </div>
+          <div class="result" id="aRes"></div>
+          <ol class="steps" id="aSteps"></ol>
+        </div>
+        <div class="lab-main">
+          <div class="chart-head"><h4 id="aChartT">Binomial y curva normal</h4><div class="legend"><span class="lg"><i class="sw" style="--c:var(--red)"></i>Valores incluidos</span><span class="lg"><i class="sw" style="--c:var(--bar-mute)"></i>Resto</span><span class="lg"><i class="sw line" style="--c:var(--ink)"></i>Normal aproximada</span></div></div>
+          <svg id="aproxChart" class="chart" role="img" aria-label="Barras binomiales con la curva normal que las aproxima"></svg>
+        </div>
+      </div>
+    </div>
+    <div class="cards3 reveal">
+      <div class="acard"><h4>Análisis</h4><p>Según el modelo, <b>54,01 %</b> de los estudiantes tardaría entre 20 y 40 minutos y <b>37,07 %</b> 30 minutos o menos. Para más de 40 minutos el modelo da <b>32,64 %</b>, mientras que en la base son 26,40 %.</p></div>
+      <div class="acard"><h4>Aplicación al caso</h4><p>Con solo la media y la desviación podemos estimar cualquier intervalo, por ejemplo la probabilidad de un viaje de <b>más de una hora</b>, sin revisar registro por registro. Sirve para dimensionar cuántos estudiantes necesitarían rutas alternativas.</p></div>
+      <div class="acard"><h4>Limitaciones</h4><p>Los tiempos reales no son perfectamente simétricos: dependen del medio, la distancia y el tráfico. El bus forma un grupo de viajes largos (46 min en promedio) que una sola campana no describe bien.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MUESTRAL ===================== -->
+<section class="sec" id="muestral">
+  <header class="banner">
+    <img src="img/b-muestral.webp" alt="Personas en la entrada de la terminal de transporte de Cúcuta" loading="lazy">
+    <div class="wrap"><span class="tag"><b>3</b>Parada 3 · Medias muestrales</span><h2>Distribución muestral</h2><p>¿Cuánto cambia el tiempo promedio entre grupos de 36 estudiantes?</p></div>
+    <span class="credit" data-credit="b-muestral"></span>
+  </header>
+  <div class="wrap sec-body">
+    <p class="lead2 reveal">Tomamos muestras de 36 estudiantes sin reemplazo y calculamos el tiempo promedio de cada una. Los promedios varían mucho menos que los tiempos individuales y, por el <b>Teorema del Límite Central</b>, su distribución se acerca a una normal.</p>
+    <div class="block reveal">
+      <h3>Planteamiento</h3>
+      <dl class="ficha" id="mFicha"></dl>
+      <div class="formulas">
+        <div class="formula"><span>Media</span>μ<sub>x̄</sub> = μ</div>
+        <div class="formula"><span>Error estándar</span>σ<sub>x̄</sub> = (σ / √n) · √[(N − n) / (N − 1)]</div>
+        <div class="formula"><span>Estandarización</span>Z = (x̄ − μ) / σ<sub>x̄</sub></div>
+      </div>
+      <p class="note"><b>¿Por qué σ = 12,85 y no 12,88?</b> En la parada 2 usamos los 250 registros como muestra para estimar la desviación (dividimos entre 249). Aquí los 250 son la <b>población completa</b> de la que sacamos las muestras, así que usamos la desviación poblacional (dividimos entre N = 250), como en el ejemplo de clase.</p>
+    </div>
+    <div class="sim reveal" id="simulacion">
+      <div class="block-head"><div><h3>Simulación: sacar muestras de la base real</h3><p class="muted" style="margin-top:6px">Cada punto es un estudiante, coloreado según su tiempo. Al tomar una muestra se marcan sus estudiantes y su promedio cae en el histograma de la derecha.</p></div></div>
+      <div class="row2" style="align-items:end">
+        <div class="field"><label for="mN">Tamaño de la muestra (<span class="nt">n</span>)</label><div class="rng"><input type="range" id="mN" min="2" max="120" value="36"><output id="mNo" for="mN">36</output></div></div>
+        <label class="check" for="mF"><input type="checkbox" id="mF" checked>Aplicar factor de corrección por población finita</label>
+      </div>
+      <p class="pinfo" id="mRule" style="background:var(--surface)"></p>
+      <div class="btns">
+        <button type="button" class="pill small" id="m1">Tomar 1 muestra</button>
+        <button type="button" class="pill small" id="m20">Tomar 20 muestras</button>
+        <button type="button" class="pill small ghost" id="m1000">Tomar 1.000 muestras</button>
+        <button type="button" class="pill small red" id="mForo">Cargar las 20 medias del Grupo 4</button>
+        <button type="button" class="pill small ghost" id="mReset">Reiniciar</button>
+      </div>
+      <div class="mue-grid">
+        <div class="block" style="gap:12px">
+          <div class="chart-head"><h4>Población: 250 estudiantes</h4><div class="legend"><span class="lg"><i class="sw dot" style="--c:var(--dot1)"></i><span id="lg1">≤ 30 min</span></span><span class="lg"><i class="sw dot" style="--c:var(--dot2)"></i><span id="lg2">31–40 min</span></span><span class="lg"><i class="sw dot" style="--c:var(--red)"></i><span id="lg3">&gt; 40 min</span></span></div></div>
+          <svg id="popGrid" class="pop" viewBox="0 0 600 240" role="img" aria-label="Cuadrícula con los 250 estudiantes de la base"></svg>
+          <div class="sinfo" id="sInfo">Aún no hay muestras. Pulsa "Tomar 1 muestra" para ver cómo se eligen 36 estudiantes al azar.</div>
+        </div>
+        <div class="block" style="gap:12px">
+          <div class="chart-head"><h4>Medias de las muestras</h4><div class="legend"><span class="lg"><i class="sw" style="--c:var(--bar-dark)"></i>Medias obtenidas</span><span class="lg"><i class="sw line" style="--c:var(--red)"></i>Normal teórica N(μ, σ<sub>x̄</sub>)</span></div></div>
+          <svg id="meansChart" class="chart" role="img" aria-label="Histograma de las medias muestrales con la curva normal teórica"></svg>
+          <dl class="mstats" id="mStats"></dl>
+        </div>
+      </div>
+      <div class="block" style="gap:8px"><span class="flabel" id="mListT">Medias obtenidas</span><div class="mlist" id="mList"></div></div>
+    </div>
+    <div class="block reveal">
+      <div class="block-head"><h3>Calculadora de la media muestral</h3><p>Probabilidad de que el promedio de una muestra caiga en un intervalo. Usa el n y el factor de corrección elegidos arriba.</p></div>
+      <div class="lab">
+        <div class="lab-side">
+          <div class="ctrl">
+            <div class="field"><span class="flabel">Preguntas del caso</span><div class="chips" id="mPre"></div></div>
+            <div class="field"><span class="flabel">Tipo de pregunta</span><div class="seg" id="mType"></div></div>
+            <div class="nums">
+              <div class="numlab"><span><span class="nt">a</span> (min)</span><div class="num"><button type="button" data-for="mA" data-d="-1" aria-label="Restar uno">−</button><input type="number" id="mA" min="0" max="80" step="0.5" value="30" aria-label="Valor a de la media"><button type="button" data-for="mA" data-d="1" aria-label="Sumar uno">+</button></div></div>
+              <div class="numlab" id="mBw"><span><span class="nt">b</span> (min)</span><div class="num"><button type="button" data-for="mB" data-d="-1" aria-label="Restar uno">−</button><input type="number" id="mB" min="0" max="80" step="0.5" value="40" aria-label="Valor b de la media"><button type="button" data-for="mB" data-d="1" aria-label="Sumar uno">+</button></div></div>
+            </div>
+          </div>
+          <div class="result" id="mRes"></div>
+          <ol class="steps" id="mSteps"></ol>
+        </div>
+        <div class="lab-main">
+          <div class="chart-head"><h4 id="mChartT">Distribución de x̄</h4><div class="legend"><span class="lg"><i class="sw line" style="--c:var(--ink)"></i>Distribución muestral</span><span class="lg"><i class="sw area"></i>Probabilidad pedida</span></div></div>
+          <svg id="mNormChart" class="chart" role="img" aria-label="Curva normal de la media muestral con el área sombreada"></svg>
+        </div>
+      </div>
+    </div>
+    <div class="cards3 reveal">
+      <div class="acard"><h4>Análisis</h4><p>Las medias se concentran alrededor de <b>34,24 min</b>. Su dispersión (σ<sub>x̄</sub> ≈ 1,99 min) es unas <b>6 veces menor</b> que la de los tiempos individuales. Con las 20 medias del grupo, la desviación observada fue 1,90, muy cerca de la teórica.</p></div>
+      <div class="acard"><h4>Aplicación al caso</h4><p>Si la universidad mide el tiempo promedio de un grupo de 36 estudiantes y obtiene <b>más de 40 minutos</b>, sería muy raro por azar (0,19 %). Ese resultado indicaría un grupo con un problema real de movilidad, por ejemplo usuarios de bus de un mismo municipio.</p></div>
+      <div class="acard"><h4>Limitaciones</h4><p>Las probabilidades usan la aproximación normal del TLC (n = 36 &gt; 30). La corrección finita se aplica porque conocemos N = 250 y la muestra supera el 5 % de la población. Los resultados describen esta base, no a todos los universitarios de la ciudad.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CIERRE ===================== -->
+<section class="sec" id="cierre">
+  <header class="banner">
+    <img src="img/b-cierre.webp" alt="Ciclistas en la ciclovía frente al Museo Nacional, Bogotá" loading="lazy">
+    <div class="wrap"><span class="tag"><b>✓</b>Llegada · Conclusiones</span><h2>Tres preguntas, un mismo viaje</h2><p>Los resultados no se contradicen: cada distribución responde una pregunta diferente.</p></div>
+    <span class="credit" data-credit="b-cierre"></span>
+  </header>
+  <div class="wrap sec-body">
+    <div class="tbl-wrap reveal">
+      <table class="tbl">
+        <thead><tr><th>Distribución</th><th>Variable</th><th>Pregunta que responde</th><th>Resultado clave</th><th>Condición para usarla</th></tr></thead>
+        <tbody>
+          <tr><td><b>Binomial</b></td><td>X = estudiantes (de 5) con viaje &gt; 40 min</td><td>¿Cuántos de un grupo pequeño tendrán viajes largos?</td><td><b>P(X ≥ 1) = <span id="cB">78,40 %</span></b></td><td>Ensayos independientes, p constante</td></tr>
+          <tr><td><b>Normal</b></td><td>X = tiempo de un estudiante</td><td>¿Qué tan probable es un tiempo para una persona?</td><td><b>P(X &gt; 40) = <span id="cN">32,64 %</span></b></td><td>Datos aproximadamente acampanados</td></tr>
+          <tr><td><b>Muestral</b></td><td>x̄ = promedio de 36 estudiantes</td><td>¿Qué tan lejos de μ puede quedar el promedio de un grupo?</td><td><b>P(30 ≤ x̄ ≤ 40) = <span id="cM">98,19 %</span></b></td><td>TLC (n &gt; 30) y corrección finita</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="block reveal">
+      <h3>Recomendaciones a partir de los resultados</h3>
+      <div class="reco">
+        <article><div class="rimg"><img src="img/r-ruta.webp" alt="Bus intermunicipal estacionado en la terminal de Cúcuta" loading="lazy"></div><h4>Rutas universitarias</h4><p><span id="rBus">49 de los 71</span> usuarios de bus tardan más de 40 minutos. Una ruta directa desde los municipios con más estudiantes reduciría los viajes largos.</p></article>
+        <article><div class="rimg"><img src="img/r-compartir.webp" alt="Taxi amarillo en una calle de Bogotá" loading="lazy"></div><h4>Viajes compartidos</h4><p>Conectar a quienes viven en el mismo municipio y tienen vehículo propio con quienes dependen del transporte público.</p></article>
+        <article><div class="rimg"><img src="img/r-horario.webp" alt="Calle de Cúcuta iluminada en la noche" loading="lazy"></div><h4>Horarios de primera hora</h4><p>En un grupo de 5 estudiantes, la probabilidad de que al menos uno tenga un viaje de más de 40 minutos es 78,40 %. Ajustar el inicio de clases reduciría las llegadas tarde.</p></article>
+      </div>
+    </div>
+    <div class="cards3 reveal">
+      <div class="acard"><h4>Lo que aprendimos</h4><p>Cada distribución tiene condiciones. Antes de aplicar una fórmula hay que identificar la variable (discreta o continua) y comprobar que el modelo se ajusta a la situación.</p></div>
+      <div class="acard"><h4>Lo que aportan</h4><p>La binomial cuenta casos en un grupo, la normal describe tiempos individuales y la muestral describe promedios de grupos. Juntas muestran que los viajes largos son frecuentes y se concentran en el bus.</p></div>
+      <div class="acard"><h4>Con cuidado</h4><p>Los modelos son aproximaciones: la normal no coincide exactamente con los datos reales y las conclusiones describen esta base de 250 registros, no a toda la población universitaria.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TABLA Z ===================== -->
+<section class="sec" id="tablaz">
+  <div class="wrap sec-body">
+    <div class="block reveal">
+      <span class="kicker">Herramienta · Normal estándar</span>
+      <h2>Tabla Z interactiva</h2>
+      <p class="lead2">Mueve Z con el control, arrástralo sobre la curva o toca cualquier celda. La tabla marca la <b>fila</b> (parte entera y primer decimal) y la <b>columna</b> (segundo decimal), igual que en la lectura manual, y traduce el resultado a minutos del caso.</p>
+      <ol class="howto">
+        <li><b>Estandariza</b><span>Z = (X − μ) / σ, redondeado a dos decimales.</span></li>
+        <li><b>Busca la fila</b><span>Parte entera y primer decimal: 0,4.</span></li>
+        <li><b>Busca la columna</b><span>Segundo decimal: 0,05.</span></li>
+        <li><b>Lee el cruce</b><span>Φ(0,45) = 0,6736, el área a la izquierda.</span></li>
+      </ol>
+    </div>
+    <div class="lab reveal">
+      <div class="lab-side">
+        <div class="ctrl">
+          <div class="field"><label for="zS">Valor de Z</label><div class="rng"><input type="range" id="zS" min="-3.49" max="3.49" step="0.01" value="0.45"><output id="zSo" for="zS">0,45</output></div></div>
+          <div class="nums">
+            <div class="numlab"><span>Escribir Z</span><div class="num"><button type="button" data-for="zI" data-d="-0.01" aria-label="Restar 0,01">−</button><input type="number" id="zI" min="-3.49" max="3.49" step="0.01" value="0.45" aria-label="Valor de Z"><button type="button" data-for="zI" data-d="0.01" aria-label="Sumar 0,01">+</button></div></div>
+            <div class="numlab"><span>Buscar Z por área <span class="nt">Φ(z)</span></span><div class="zfind"><div class="num"><input type="number" id="zP" min="0.0001" max="0.9999" step="0.01" value="0.9" aria-label="Área acumulada" style="width:100px"></div><button type="button" class="pill small" id="zPgo">Buscar</button></div></div>
+          </div>
+          <div class="field"><span class="flabel">Área que quieres leer</span><div class="seg" id="zType"></div></div>
+          <div class="field"><span class="flabel">Ejemplos</span><div class="chips" id="zPre"></div></div>
+          <div class="field"><span class="flabel">Z usados en las calculadoras de la página</span><div class="chips" id="zUsed"></div></div>
+        </div>
+        <div class="result" id="zRes"></div>
+      </div>
+      <div class="lab-main">
+        <div class="chart-head"><h4>Normal estándar N(0, 1)</h4><div class="legend"><span class="lg"><i class="sw area"></i>Área seleccionada</span><span class="lg"><i class="sw dot" style="--c:var(--red)"></i>Arrastra para mover Z</span></div></div>
+        <svg id="zChart" class="chart zchart" role="img" aria-label="Curva normal estándar con el área seleccionada; se puede arrastrar para cambiar Z"></svg>
+        <div class="zcase" id="zCase"></div>
+      </div>
+    </div>
+    <div class="block reveal">
+      <div class="block-head"><h3>Tabla Z completa</h3><div class="seg" id="zSide"></div></div>
+      <div class="legend"><span class="lg"><i class="sw" style="--c:var(--red-btn)"></i>Z seleccionado</span><span class="lg"><i class="sw" style="--c:var(--red-wash)"></i>Fila y columna de la lectura</span><span class="lg"><i class="sw ring"></i>Usado en las calculadoras</span></div>
+      <div class="zscroll" id="zScroll"></div>
+      <p class="muted" style="font-size:13px">Valores de Φ(z), el área a la izquierda de z. Para el área entre 0 y z (como en los ejemplos de clase) se resta 0,5000.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="ft"><span class="fbrand">Transporte<span>·</span>U</span><span>Grupo 4 · Universidad Simón Bolívar, sede Cúcuta · Estadística y Probabilidad</span></div>
+    <div><p style="margin-bottom:8px">Fotografías de Wikimedia Commons, usadas según su licencia:</p><ul id="credits"></ul></div>
+  </div>
+</footer>
+
+<div id="tip" hidden></div>
+
+<script>
+'use strict';
+const DATA = {"medios":["Moto","Bus","Taxi/Aplicación","Carro","Caminando","Bicicleta"],"municipios":["Cúcuta","Los Patios","Villa del Rosario","Ocaña","El Zulia","Pamplona"],"programas":["Derecho","Psicología","Administración de Empresas","Ingeniería de Sistemas","Ingeniería Industrial","Contaduría Pública","Marketing y Administración","Trabajo Social"],"t":[42,43,27,20,35,21,33,27,36,20,9,40,30,11,37,67,20,31,24,25,36,36,19,27,39,33,35,39,64,59,28,24,46,27,12,41,33,22,30,26,53,28,46,8,64,63,41,9,42,44,8,39,40,10,29,39,38,35,8,55,25,36,35,27,36,33,27,37,13,53,20,27,49,16,19,29,31,55,11,36,42,23,24,34,49,46,48,39,28,46,61,40,54,25,39,44,52,38,28,17,54,55,28,21,29,30,34,36,39,37,26,61,13,35,22,45,52,42,21,59,42,46,32,36,27,36,32,35,53,73,51,33,37,31,21,23,23,18,33,21,48,30,27,32,22,33,48,50,34,36,30,37,18,28,28,37,42,28,16,23,56,54,32,21,56,36,21,27,52,23,13,39,41,29,34,28,28,61,37,35,37,36,38,25,10,26,42,19,34,36,31,55,18,50,18,28,28,28,30,30,36,35,33,15,25,32,14,35,36,18,57,12,30,44,28,20,23,46,38,37,35,57,24,27,17,44,62,36,59,33,26,17,35,32,31,25,32,35,40,55,50,43,31,52,35,39,52,30,46,50],"m":[4,1,0,4,3,1,2,2,3,2,2,1,1,0,5,1,0,3,0,3,5,0,0,0,0,0,0,0,1,1,0,0,1,3,3,1,5,0,3,0,4,3,3,2,1,1,3,0,3,1,0,0,0,0,0,0,0,0,2,1,0,0,3,0,2,4,0,1,0,1,0,5,1,1,1,3,0,1,5,2,1,3,2,0,1,1,1,2,5,1,1,1,1,2,1,1,1,0,0,3,1,2,0,1,0,2,4,0,0,5,0,1,5,1,0,1,1,1,2,1,1,1,0,4,0,0,2,0,1,1,1,0,0,2,0,0,0,0,2,0,1,3,0,0,0,0,3,1,1,1,3,1,5,0,2,4,2,2,0,0,1,1,0,0,1,0,5,0,3,2,4,0,2,4,4,1,0,1,1,0,3,2,1,5,0,3,5,0,1,2,0,1,2,0,2,0,2,1,4,2,1,0,4,0,1,0,0,3,3,0,1,0,0,1,5,3,3,2,0,2,0,1,0,0,3,1,1,1,1,3,1,0,0,0,2,0,2,0,0,4,1,1,2,1,2,0,5,3,0,4],"u":[0,4,2,1,0,0,0,5,1,2,0,4,3,0,0,0,0,1,0,0,1,0,0,0,0,3,0,1,1,0,1,0,0,4,4,3,0,0,2,0,0,1,0,5,0,2,0,1,1,0,4,3,4,5,1,4,0,0,0,0,0,0,3,0,0,1,0,3,0,4,3,0,0,3,2,2,3,0,0,0,5,1,0,0,0,0,2,2,5,0,0,2,3,1,3,1,1,0,0,0,0,2,0,1,5,0,0,2,0,0,0,0,4,3,2,5,3,0,5,1,3,5,0,0,0,0,3,5,0,1,0,0,0,0,4,0,1,2,0,4,4,0,1,0,0,0,1,1,0,0,5,0,0,1,4,0,2,3,0,2,0,2,2,1,0,3,0,0,0,1,2,0,1,0,2,0,2,0,4,0,0,0,4,5,0,2,3,1,1,0,0,5,5,2,0,0,2,5,5,3,2,0,0,5,1,0,0,2,0,0,1,2,2,0,2,0,0,2,2,3,2,1,0,0,0,0,4,0,5,2,3,1,1,1,0,2,0,0,2,0,4,4,5,0,0,4,0,4,4,3],"p":[7,5,5,4,7,2,4,2,5,5,4,4,2,6,2,4,0,4,0,3,4,3,6,2,0,2,3,0,2,4,5,3,2,3,1,3,0,1,7,0,5,1,7,4,3,2,6,3,7,3,5,4,6,1,1,1,7,0,0,2,6,1,0,7,2,4,2,0,5,7,5,1,5,1,1,0,5,1,6,4,2,2,0,5,5,1,7,3,1,4,6,2,1,3,3,1,0,2,0,6,3,3,4,6,3,6,2,5,3,4,2,1,6,1,0,2,1,7,7,3,6,5,2,3,4,0,6,2,7,2,5,7,5,4,0,4,3,3,4,0,4,0,0,1,7,6,0,5,0,0,0,1,7,1,3,1,5,5,1,7,4,6,7,1,0,2,6,6,5,6,1,0,0,3,0,7,0,5,0,3,2,1,5,7,2,5,4,6,4,0,2,0,6,5,6,3,6,3,6,1,3,2,0,7,0,4,0,5,1,6,4,5,5,3,0,2,7,2,4,1,2,6,2,4,7,2,6,3,1,4,3,3,3,5,1,7,0,1,5,0,1,3,4,0,6,6,2,0,4,7],"id":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250]};
+const CREDITS = [{"key": "moto", "title": "Motociclistas em Bogotá (3326018921)", "artist": "Leandro Neumann Ciuffo", "lic": "CC BY 2.0", "page": "https://commons.wikimedia.org/wiki/File:Motociclistas_em_Bogot%C3%A1_(3326018921).jpg"}, {"key": "bus", "title": "Bus verde y blanco terminal de Cúcuta", "artist": "EEIM", "lic": "CC BY-SA 3.0", "page": "https://commons.wikimedia.org/wiki/File:Bus_verde_y_blanco_terminal_de_C%C3%BAcuta.jpeg"}, {"key": "taxi", "title": "Parque Santander Cúcuta N.S. , Colombia", "artist": "EEIM", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Parque_Santander_C%C3%BAcuta_N.S._,_Colombia.jpg"}, {"key": "hero-4", "title": "Parque Santander Cúcuta N.S. , Colombia", "artist": "EEIM", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Parque_Santander_C%C3%BAcuta_N.S._,_Colombia.jpg"}, {"key": "carro", "title": "Trancon Autonorte", "artist": "Josegacel29", "lic": "CC BY-SA 3.0", "page": "https://commons.wikimedia.org/wiki/File:Trancon_Autonorte.jpg"}, {"key": "hero-3", "title": "Trancon Autonorte", "artist": "Josegacel29", "lic": "CC BY-SA 3.0", "page": "https://commons.wikimedia.org/wiki/File:Trancon_Autonorte.jpg"}, {"key": "caminando", "title": "Bogotá carrera 7 calle 22, peatonal", "artist": "Felipe Restrepo Acosta", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Bogot%C3%A1_carrera_7_calle_22,_peatonal.JPG"}, {"key": "bicicleta", "title": "Bogotá ciclovía, carrera 7 calle 27", "artist": "Felipe Restrepo Acosta", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Bogot%C3%A1_ciclov%C3%ADa,_carrera_7_calle_27.JPG"}, {"key": "hero-1", "title": "Avenida en Cúcuta NS, Col", "artist": "EEIM", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Avenida_en_C%C3%BAcuta_NS,_Col.JPG"}, {"key": "hero-2", "title": "Calle en Cúcuta de noche", "artist": "EEIM", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Calle_en_C%C3%BAcuta_de_noche.JPG"}, {"key": "b-binomial", "title": "Bus 2 Cúcuta may 2023", "artist": "EEIM", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Bus_2_C%C3%BAcuta_may_2023.jpg"}, {"key": "b-normal", "title": "Avenida 0, Cúcuta my 2021", "artist": "EEIM", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Avenida_0,_C%C3%BAcuta_my_2021.jpg"}, {"key": "b-muestral", "title": "Terminal Cúcuta NS, Col", "artist": "EEIM", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Terminal_C%C3%BAcuta_NS,_Col.jpg"}, {"key": "b-cierre", "title": "2017 Bogotá ciclovía frente al Museo Nacional", "artist": "Felipe Restrepo Acosta", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:2017_Bogot%C3%A1_ciclov%C3%ADa_frente_al_Museo_Nacional.jpg"}, {"key": "r-ruta", "title": "Bus Copetran en Cúcuta", "artist": "EEIM", "lic": "CC BY-SA 3.0", "page": "https://commons.wikimedia.org/wiki/File:Bus_Copetran_en_C%C3%BAcuta.jpeg"}, {"key": "r-compartir", "title": "Bogotá, taxi en la carrera 11", "artist": "Felipe Restrepo Acosta", "lic": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File:Bogot%C3%A1,_taxi_en_la_carrera_11.JPG"}, {"key": "r-horario", "title": "Una calle en Cúcuta de noche", "artist": "EEIM", "lic": "CC BY-SA 3.0", "page": "https://commons.wikimedia.org/wiki/File:Una_calle_en_C%C3%BAcuta_de_noche.jpeg"}];
+const MEDIA = {"Moto": {"src": "img/moto.webp", "alt": "Motociclistas en medio del tráfico en Bogotá"}, "Bus": {"src": "img/bus.webp", "alt": "Bus intermunicipal verde y blanco en la terminal de Cúcuta"}, "Taxi/Aplicación": {"src": "img/taxi.webp", "alt": "Taxi amarillo frente al Parque Santander de Cúcuta"}, "Carro": {"src": "img/carro.webp", "alt": "Trancón de carros en la noche en la Autopista Norte de Bogotá"}, "Caminando": {"src": "img/caminando.webp", "alt": "Personas caminando por la carrera Séptima peatonal en Bogotá"}, "Bicicleta": {"src": "img/bicicleta.webp", "alt": "Ciclistas en la ciclovía de la carrera Séptima en Bogotá", "pos": "right"}};
+
+/* ================= Utilidades ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = DATA.t, N = T.length;
+const sum = a => a.reduce((x, y) => x + y, 0);
+const avg = a => sum(a) / a.length;
+const sdev = a => { const m = avg(a); return Math.sqrt(sum(a.map(v => (v - m) ** 2)) / (a.length - 1)); };
+const r2 = v => Math.round(v * 100) / 100;
+const r4 = v => Math.round(v * 1e4) / 1e4;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sleep = ms => new Promise(r => setTimeout(r, RM ? 0 : ms));
+const medName = s => s === 'Taxi/Aplicación' ? 'Taxi / app' : s;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const MU_X = avg(T);
+const SSQ = sum(T.map(t => (t - MU_X) ** 2));
+const MU = r2(MU_X);                     // 34,24
+const SD = r2(Math.sqrt(SSQ / (N - 1)));  // 12,88 (muestral, n − 1)
+const SIG = r2(Math.sqrt(SSQ / N));       // 12,85 (poblacional, N)
+
+const nfCache = {};
+function fmt(v, d = 2) {
+  if (!isFinite(v)) return v > 0 ? '∞' : '−∞';
+  nfCache[d] = nfCache[d] || new Intl.NumberFormat('es-CO', { minimumFractionDigits: d, maximumFractionDigits: d });
+  let s = nfCache[d].format(v);
+  if (s[0] === '-') s = '−' + s.slice(1);
+  if (/^−0(,0+)?$/.test(s)) s = s.slice(1);
+  return s;
+}
+const pct = (p, d = 2) => fmt(p * 100, d) + ' %';
+const fx = v => fmt(v, v % 1 ? 1 : 0);
+
+/* Normal estándar */
+function erfc(x) {
+  const z = Math.abs(x), t = 1 / (1 + 0.5 * z);
+  const r = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return x >= 0 ? r : 2 - r;
+}
+const Phi = z => 0.5 * erfc(-z / Math.SQRT2);
+const pdf = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
+const zRound = z => { const r = Math.sign(z) * Math.round(Math.abs(z) * 100) / 100; return r === 0 ? 0 : r; };
+const tabla = zr => r4(Phi(zr));
+
+/* Combinatoria */
+const LF = [0]; for (let i = 1; i <= 400; i++) LF[i] = LF[i - 1] + Math.log(i);
+function comb(n, k) { if (k < 0 || k > n) return 0; let r = 1; k = Math.min(k, n - k); for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); }
+function pmf(n, k, p) { if (k < 0 || k > n) return 0; if (p <= 0) return k === 0 ? 1 : 0; if (p >= 1) return k === n ? 1 : 0; return Math.exp(LF[n] - LF[k] - LF[n - k] + k * Math.log(p) + (n - k) * Math.log(1 - p)); }
+function combBig(n, k) { k = Math.min(k, n - k); let r = 1n; for (let i = 1; i <= k; i++) r = r * BigInt(n - k + i) / BigInt(i); return r; }
+function bigSci(b) { const s = b.toString(); if (s.length <= 7) return fmt(Number(s), 0); return `${s[0]},${s.slice(1, 3)} × 10<sup>${s.length - 1}</sup>`; }
+
+/* Animación */
+function tween(dur, fn, done) {
+  if (RM) { fn(1); if (done) done(); return; }
+  const t0 = performance.now();
+  const step = now => { const t = Math.min(1, (now - t0) / dur); fn(1 - Math.pow(1 - t, 3)); if (t < 1) requestAnimationFrame(step); else if (done) done(); };
+  requestAnimationFrame(step);
+}
+const lerp = (a, b, t) => a + (b - a) * t;
+function animNum(el, to, d, suffix = '') {
+  const from = parseFloat(el.dataset.v ?? to);
+  el.dataset.v = to;
+  tween(500, t => { el.textContent = fmt(lerp(from, to, t), d) + suffix; });
+}
+
+/* SVG */
+const NS = 'http://www.w3.org/2000/svg';
+const W = 640;
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function txt(parent, x, y, s, attrs = {}) { const t = el('text', Object.assign({ x, y }, attrs), parent); t.textContent = s; return t; }
+function frame(svg, H) { svg.setAttribute('viewBox', `0 0 ${W} ${H}`); while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function niceStep(range, target) { const raw = range / target; const mag = Math.pow(10, Math.floor(Math.log10(raw))); const f = raw / mag; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag; }
+function barPath(x, y0, w, h, r = 4) {
+  if (h <= 0.01) return `M${x},${y0}H${x + w}`;
+  const rr = Math.min(r, h, w / 2);
+  return `M${x},${y0}V${y0 - h + rr}Q${x},${y0 - h} ${x + rr},${y0 - h}H${x + w - rr}Q${x + w},${y0 - h} ${x + w},${y0 - h + rr}V${y0}Z`;
+}
+/* Coloca el porcentaje dentro del área si cabe; si no, encima de la curva */
+function labelPos(X, Y, f, lo, hi, mode, m) {
+  const xl = X(lo), xh = X(hi), w = xh - xl;
+  let px = X(clamp(mode, lo, hi));
+  const pad = Math.min(52, w / 2);
+  px = clamp(px, xl + pad, xh - pad);
+  px = clamp(px, m.l + 46, W - m.r - 46);
+  const inv = v => lo + (v - xl) / Math.max(1e-9, w) * (hi - lo);
+  const yv = Y(f(inv(px))), h = Y(0) - yv;
+  if (w > 96 && h > 60) return { x: px, y: yv + h * 0.62 };
+  return { x: px, y: Math.max(m.t + 14, yv - 14) };
+}
+function svgX(svg, e) { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()).x; }
+
+/* Tooltip */
+const tip = $('#tip');
+function fillTip(s) { tip.innerHTML = ''; s.split('|').forEach((x, i) => { const n = document.createElement(i ? 'span' : 'b'); n.textContent = x; tip.appendChild(n); }); }
+function posTip(e) { const pad = 14; const r = tip.getBoundingClientRect(); let x = e.clientX + pad, y = e.clientY + pad; if (x + r.width > innerWidth - 8) x = e.clientX - r.width - pad; if (y + r.height > innerHeight - 8) y = e.clientY - r.height - pad; tip.style.transform = `translate(${Math.max(4, x)}px,${Math.max(4, y)}px)`; }
+document.addEventListener('pointerover', e => {
+  const t = e.target.closest && e.target.closest('[data-tip]');
+  if (!t) { tip.hidden = true; return; }
+  fillTip(t.dataset.tip); tip.hidden = false; posTip(e);
+});
+document.addEventListener('pointermove', e => { if (!tip.hidden) posTip(e); });
+document.addEventListener('scroll', () => { tip.hidden = true; }, { passive: true });
+
+/* Tabla Z: búsqueda con mini tabla */
+function zParts(zr) { const neg = zr < 0; const a = Math.abs(zr); const row = Math.floor(a * 10 + 1e-7) / 10; const col = Math.round((a - row) * 100) / 100; return { neg, row, col }; }
+const rowLabel = (neg, row) => (neg ? '−' : '') + fmt(row, 1);
+const cellId = (neg, row, col) => `zc_${neg ? 'n' : 'p'}_${Math.round(row * 10)}_${Math.round(col * 100)}`;
+function zLookup(zr) {
+  const val = tabla(zr);
+  if (Math.abs(zr) > 3.49) return { val, txt: `|Z| mayor que 3,49: fuera de la tabla, Φ ≈ ${fmt(val, 4)}`, html: '' };
+  const { neg, row, col } = zParts(zr);
+  const rows = [row - 0.1, row, row + 0.1].map(v => Math.round(v * 10) / 10).filter(v => v >= 0 && v <= 3.4);
+  const cols = [col - 0.01, col, col + 0.01].map(v => Math.round(v * 100) / 100).filter(v => v >= 0 && v <= 0.09);
+  let h = '<table class="zmini"><thead><tr><th>z</th>' + cols.map(c => `<th${c === col ? ' class="hc"' : ''}>${fmt(c, 2)}</th>`).join('') + '</tr></thead><tbody>';
+  rows.forEach(rw => {
+    h += `<tr><th${rw === row ? ' class="hr"' : ''}>${rowLabel(neg, rw)}</th>`;
+    cols.forEach(c => { const v = tabla((neg ? -1 : 1) * (rw + c)); h += `<td${rw === row && c === col ? ' class="hit"' : ''}>${fmt(v, 4)}</td>`; });
+    h += '</tr>';
+  });
+  h += `</tbody></table><button type="button" class="zgo" data-z="${zr}">Ver en la tabla Z →</button>`;
+  return { val, txt: `fila ${rowLabel(neg, row)}, columna ${fmt(col, 2)} → Φ(${fmt(zr)}) = ${fmt(val, 4)}`, html: h };
+}
+
+/* Cálculo normal genérico (paradas 2 y 3) */
+function normalCalc(o) {
+  const { mu, sd, type, sym } = o;
+  let a = o.a, b = o.b;
+  if (type === 'bt' && a > b) [a, b] = [b, a];
+  const zLine = (x, lab) => { const z = (x - mu) / sd; const zr = zRound(z); return { zr, html: `${lab} = (${fx(x)} − ${fmt(mu)}) / ${o.sdTxt} = ${fmt(z, 4)} → <b>${fmt(zr)}</b>` }; };
+  const steps = [];
+  let p, pEx, notation, lo, hi, zs = [];
+  if (type === 'bt') {
+    notation = `P(${fx(a)} ≤ ${sym} ≤ ${fx(b)})`; lo = a; hi = b;
+    const z1 = zLine(a, 'Z₁'), z2 = zLine(b, 'Z₂'); zs = [z1.zr, z2.zr];
+    steps.push({ t: 'Estandarizamos los dos límites', f: [z1.html, z2.html] });
+    const l1 = zLookup(z1.zr), l2 = zLookup(z2.zr);
+    steps.push({ t: 'Buscamos en la tabla Z (área acumulada)', f: [`Z₁: ${l1.txt}`, `Z₂: ${l2.txt}`], z: l1.html + l2.html });
+    p = r4(l2.val - l1.val); pEx = Phi((b - mu) / sd) - Phi((a - mu) / sd);
+    steps.push({ t: 'Restamos las áreas', f: [`${notation} = Φ(${fmt(z2.zr)}) − Φ(${fmt(z1.zr)}) = ${fmt(l2.val, 4)} − ${fmt(l1.val, 4)} = <b>${fmt(p, 4)}</b>`] });
+  } else {
+    const z1 = zLine(a, 'Z'); zs = [z1.zr];
+    steps.push({ t: 'Estandarizamos', f: [z1.html] });
+    const l1 = zLookup(z1.zr);
+    steps.push({ t: 'Buscamos en la tabla Z (área acumulada)', f: [l1.txt], z: l1.html });
+    if (type === 'le') {
+      notation = `P(${sym} ≤ ${fx(a)})`; lo = -Infinity; hi = a; p = l1.val; pEx = Phi((a - mu) / sd);
+      steps.push({ t: 'El área a la izquierda es la probabilidad', f: [`${notation} = Φ(${fmt(z1.zr)}) = <b>${fmt(p, 4)}</b>`] });
+    } else {
+      notation = `P(${sym} > ${fx(a)})`; lo = a; hi = Infinity; p = r4(1 - l1.val); pEx = 1 - Phi((a - mu) / sd);
+      steps.push({ t: 'Usamos el complemento (área a la derecha)', f: [`${notation} = 1 − Φ(${fmt(z1.zr)}) = 1 − ${fmt(l1.val, 4)} = <b>${fmt(p, 4)}</b>`] });
+    }
+  }
+  return { p, pEx, notation, lo, hi, zs, steps, a, b };
+}
+function renderSteps(ol, steps) {
+  ol.innerHTML = steps.map(s => `<li><div style="min-width:0"><div class="t">${s.t}</div>${s.f.map(f => `<div class="f">${f}</div>`).join('')}${s.z ? `<div class="zbox">${s.z}</div>` : ''}</div></li>`).join('');
+}
+
+/* Curva normal con área (paradas 2 y 3) */
+const normPrev = {};
+function drawNormal(svg, c) {
+  const H = 310, m = { l: 18, r: 18, t: 30, b: 70 };
+  frame(svg, H);
+  const [x0, x1] = c.dom, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const X = v => m.l + (v - x0) / (x1 - x0) * iw;
+  const f = v => pdf(v, c.mu, c.sd);
+  const ymax = f(c.mu) * 1.16;
+  const Y = v => m.t + ih - v / ymax * ih;
+  const st = niceStep(x1 - x0, 8);
+  for (let v = Math.ceil(x0 / st) * st; v <= x1 + 1e-9; v += st) {
+    el('line', { x1: X(v), x2: X(v), y1: m.t, y2: Y(0), class: 'grid' }, svg);
+    txt(svg, X(v), Y(0) + 17, fmt(v, st < 1 ? 1 : 0), { 'text-anchor': 'middle' });
+  }
+  const area = el('path', { class: 'area' }, svg);
+  let d = '';
+  for (let i = 0; i <= 220; i++) { const v = x0 + (x1 - x0) * i / 220; d += (i ? 'L' : 'M') + X(v).toFixed(1) + ',' + Y(f(v)).toFixed(1); }
+  el('path', { d, class: 'curve' }, svg);
+  el('line', { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: 'axis' }, svg);
+  el('line', { x1: X(c.mu), x2: X(c.mu), y1: Y(0), y2: Y(f(c.mu)), class: 'muline' }, svg);
+  txt(svg, X(c.mu), m.t - 10, c.muLabel, { 'text-anchor': 'middle', class: 'lbl' });
+  txt(svg, m.l, H - 8, `${c.sym} (minutos) y su valor Z`, { class: 'ttl' });
+  const bounds = [];
+  if (isFinite(c.lo)) bounds.push([c.lo, c.zs[0]]);
+  if (isFinite(c.hi)) bounds.push([c.hi, c.zs[c.zs.length - 1]]);
+  bounds.forEach(([v, z], i) => {
+    if (v < x0 || v > x1) return;
+    el('line', { x1: X(v), x2: X(v), y1: Y(0), y2: Y(f(v)), class: 'bound' }, svg);
+    const close = bounds.length === 2 && Math.abs(X(bounds[1][0]) - X(bounds[0][0])) < 90;
+    const anchor = close ? (i === 0 ? 'end' : 'start') : 'middle';
+    const xx = clamp(X(v), m.l + 24, W - m.r - 24);
+    txt(svg, xx, Y(0) + 34, `${c.sym} = ${fx(v)}`, { 'text-anchor': anchor, class: 'lbl' });
+    txt(svg, xx, Y(0) + 50, `Z = ${fmt(z)}`, { 'text-anchor': anchor });
+  });
+  const loC = clamp(isFinite(c.lo) ? c.lo : x0, x0, x1), hiC = clamp(isFinite(c.hi) ? c.hi : x1, x0, x1);
+  const lp = labelPos(X, Y, f, loC, hiC, c.mu, m);
+  txt(svg, lp.x, lp.y, c.label, { 'text-anchor': 'middle', class: 'big' });
+  const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, class: 'hz', 'data-tip': c.sym }, svg);
+  hit.addEventListener('pointermove', e => {
+    const v = x0 + (svgX(svg, e) - m.l) / iw * (x1 - x0);
+    hit.dataset.tip = `${c.sym} = ${fmt(v, 1)} min|Z = ${fmt((v - c.mu) / c.sd)}|P(${c.sym} ≤ ${fmt(v, 1)}) ≈ ${pct(Phi((v - c.mu) / c.sd))}`;
+    fillTip(hit.dataset.tip); tip.hidden = false; posTip(e);
+  });
+  const areaPath = (a, b) => { let s = `M${X(a).toFixed(1)},${Y(0)}`; for (let i = 0; i <= 80; i++) { const v = a + (b - a) * i / 80; s += `L${X(v).toFixed(1)},${Y(f(v)).toFixed(1)}`; } return s + `L${X(b).toFixed(1)},${Y(0)}Z`; };
+  const prev = normPrev[c.key];
+  const same = prev && prev.mu === c.mu && prev.sd === c.sd;
+  const fromLo = same ? prev.lo : loC, fromHi = same ? prev.hi : hiC;
+  normPrev[c.key] = { lo: loC, hi: hiC, mu: c.mu, sd: c.sd };
+  tween(420, t => area.setAttribute('d', areaPath(lerp(fromLo, loC, t), lerp(fromHi, hiC, t))));
+}
+
+/* Controles reutilizables */
+function makeSeg(box, items, get, set) {
+  box.innerHTML = '';
+  items.forEach(([v, l]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = l; b.dataset.v = v; b.addEventListener('click', () => set(v)); box.appendChild(b); });
+  const sync = () => $$('button', box).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === String(get()))));
+  sync(); return sync;
+}
+function makeChips(box, items, apply, isOn) {
+  box.innerHTML = '';
+  items.forEach(it => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = it.l; b.addEventListener('click', () => apply(it)); box.appendChild(b); });
+  return () => $$('.chip', box).forEach((b, i) => b.classList.toggle('on', isOn(items[i])));
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.num button'); if (!b || !b.dataset.for) return;
+  const inp = document.getElementById(b.dataset.for);
+  const v = parseFloat(inp.value || 0) + parseFloat(b.dataset.d);
+  inp.value = Math.round(clamp(v, parseFloat(inp.min), parseFloat(inp.max)) * 1e4) / 1e4;
+  inp.dispatchEvent(new Event('input', { bubbles: true }));
+});
+
+/* ================= Datos del caso ================= */
+let MROWS = [];
+function initCaso() {
+  MROWS = DATA.medios.map((name, i) => { const ts = T.filter((_, j) => DATA.m[j] === i); return { name, i, c: ts.length, l: ts.filter(t => t > 40).length, avg: avg(ts) }; });
+  $('#rail').innerHTML = MROWS.map((r, k) => {
+    const md = MEDIA[r.name] || {};
+    const share = r.l / r.c;
+    return `<article class="tcard">
+      <div class="tmedia"><img src="${md.src}" alt="${esc(md.alt)}" style="--d:${16 + k * 2}s;--dl:-${k * 3}s;object-position:${md.pos || 'center'}" loading="lazy"><span class="speed" aria-hidden="true"></span><span class="badge${share > 0.5 ? ' hot' : ''}">${fmt(share * 100, 0)} % tarda más de 40 min</span><span class="tname">${medName(r.name)}</span></div>
+      <div class="tinfo">
+        <div class="row"><h4>${medName(r.name)}</h4><b>${fmt(r.avg, 1)} min</b></div>
+        <div class="row muted"><span>${r.c} estudiantes · ${fmt(r.c / N * 100, 1)} %</span><span>promedio</span></div>
+        <div class="tbar" title="Proporción que tarda más de 40 minutos"><i style="width:${(share * 100).toFixed(1)}%;animation-delay:${k * 120}ms"></i></div>
+        <span class="muted" style="font-size:13px">${r.l} de ${r.c} tardan más de 40 min</span>
+        <button type="button" class="tlink" data-m="${r.i}">Usar este grupo en la binomial →</button>
+      </div></article>`;
+  }).join('');
+  $('#rail').addEventListener('click', e => { const b = e.target.closest('.tlink'); if (!b) return; bin.medio = +b.dataset.m; resetSim(); updateBin(true); document.getElementById('binLab').scrollIntoView({ behavior: RM ? 'auto' : 'smooth' }); });
+  const step = () => ($('.tcard') ? $('.tcard').getBoundingClientRect().width + 14 : 300);
+  $('#railPrev').addEventListener('click', () => $('#rail').scrollBy({ left: -step(), behavior: RM ? 'auto' : 'smooth' }));
+  $('#railNext').addEventListener('click', () => $('#rail').scrollBy({ left: step(), behavior: RM ? 'auto' : 'smooth' }));
+  const sorted = [...T].sort((a, b) => a - b); const med = (sorted[124] + sorted[125]) / 2;
+  const largos = T.filter(t => t > 40).length;
+  const facts = [['Media <span class="nt">μ</span>', fmt(MU)], ['Desviación <span class="nt">s</span>', fmt(SD)], ['Mediana', fx(med)], ['Mínimo', String(sorted[0])], ['Máximo', String(sorted[N - 1])], ['Más de 40 min', String(largos)]];
+  $('#facts').innerHTML = facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  const bus = MROWS.find(r => r.name === 'Bus');
+  $('#busLargos').textContent = `${bus.l} de los ${largos}`;
+  $('#rBus').textContent = `${bus.l} de los ${bus.c}`;
+  const items = MROWS.map(r => `<span>${medName(r.name)} <b>${r.c}</b></span>`).concat([`<span>Promedio <b>${fmt(MU)} min</b></span>`, `<span>Más de 40 min <b>${largos}</b></span>`, `<span>Bus <b>${fmt(bus.avg, 1)} min</b> en promedio</span>`]).join('<span>·</span>');
+  $('#marq').innerHTML = items + '<span>·</span>' + items + '<span>·</span>';
+  $$('[data-credit]').forEach(s => { const c = CREDITS.find(x => x.key === s.dataset.credit); if (c) s.textContent = `Foto: ${c.artist} · ${c.lic}`; });
+  const seen = new Set();
+  $('#credits').innerHTML = CREDITS.filter(c => !seen.has(c.title) && seen.add(c.title)).map(c => `<li><a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.title)}</a> · ${esc(c.artist)} · ${esc(c.lic)}</li>`).join('');
+}
+
+/* ================= Parada 1: binomial ================= */
+const bin = { n: 5, u: 40, type: 'ge', x: 2, medio: -1, p: 0.264, k: 66, pool: [], sim: null, simN: 0, simCounts: null };
+const BTYPES = [['ex', 'Exactamente'], ['le', 'Como máximo'], ['ge', 'Por lo menos'], ['gt', 'Más de'], ['lt', 'Menos de']];
+const BSYM = { ex: '=', le: '≤', ge: '≥', gt: '>', lt: '<' };
+const BPRE = [{ t: 'ex', x: 2, l: 'Exactamente 2' }, { t: 'ex', x: 0, l: 'Ninguno' }, { t: 'le', x: 2, l: 'Como máximo 2' }, { t: 'ge', x: 2, l: 'Al menos 2' }, { t: 'ge', x: 1, l: 'Al menos 1' }];
+let bSegSync, bChipSync, bMedSync, binPrev = { n: -1, h: [] };
+const bIncl = (type, x, n) => { const a = []; for (let k = 0; k <= n; k++) if ((type === 'ex' && k === x) || (type === 'le' && k <= x) || (type === 'ge' && k >= x) || (type === 'gt' && k > x) || (type === 'lt' && k < x)) a.push(k); return a; };
+const xRange = (type, n) => type === 'gt' ? [0, n - 1] : type === 'lt' ? [1, n] : [0, n];
+function bTerm(n, k, p, withProc = true) {
+  const q = 1 - p, c = comb(n, k), pk = Math.pow(p, k), qk = Math.pow(q, n - k), v = c * pk * qk;
+  return { v, html: `P(X = ${k}) = C(${n},${k}) · (${fmt(p, 3)})<sup>${k}</sup> · (${fmt(q, 3)})<sup>${n - k}</sup>` + (withProc ? ` = ${fmt(c, 0)} × ${fmt(pk, 6)} × ${fmt(qk, 6)}` : '') + ` = <b>${fmt(v, 6)}</b>` };
+}
+function binPhrase(type, x, n, u) {
+  const grp = bin.medio >= 0 ? ` usuarios de ${medName(DATA.medios[bin.medio]).toLowerCase()}` : ' estudiantes';
+  const verb = (x === 1 && type !== 'gt' && type !== 'lt') ? 'tarde' : 'tarden';
+  if (type === 'ex' && x === 0) return `ninguno de los ${n}${grp} seleccionados tarde más de ${u} minutos`;
+  return ({ ex: `exactamente ${x}`, le: `como máximo ${x}`, ge: `al menos ${x}`, gt: `más de ${x}`, lt: `menos de ${x}` })[type] + ` de los ${n}${grp} seleccionados ${verb} más de ${u} minutos`;
+}
+function updateBin(animate = true) {
+  const { n, type } = bin;
+  const [xmin, xmax] = xRange(type, n);
+  bin.x = clamp(bin.x, xmin, xmax);
+  const xi = $('#bX'); xi.min = xmin; xi.max = xmax; xi.value = bin.x;
+  bin.pool = T.map((_, i) => i).filter(i => bin.medio < 0 || DATA.m[i] === bin.medio);
+  const NP = bin.pool.length;
+  bin.k = bin.pool.filter(i => T[i] > bin.u).length; bin.p = bin.k / NP;
+  const p = bin.p, q = 1 - p, x = bin.x, u = bin.u;
+  $('#bNo').textContent = n; $('#bUo').textContent = u;
+  const grp = bin.medio >= 0 ? ` (solo usuarios de ${medName(DATA.medios[bin.medio]).toLowerCase()})` : '';
+  $('#bP').innerHTML = `Éxito = tardar más de <b>${u} min</b>${grp} → p = ${bin.k}/${NP} = <b>${fmt(p, 3)}</b> · q = ${NP - bin.k}/${NP} = <b>${fmt(q, 3)}</b> · E(X) = np = <b>${fmt(n * p, 2)}</b>`;
+  bSegSync(); bChipSync(); bMedSync();
+  const inc = bIncl(type, x, n);
+  const comp = []; for (let k = 0; k <= n; k++) if (!inc.includes(k)) comp.push(k);
+  const useComp = type !== 'ex' && comp.length < inc.length && comp.length > 0;
+  const notation = `P(X ${BSYM[type]} ${x})`;
+  const P = []; for (let k = 0; k <= n; k++) P.push(comb(n, k) * Math.pow(p, k) * Math.pow(q, n - k));
+  const exact = sum(inc.map(k => P[k]));
+  const steps = [];
+  steps.push({ t: 'Identificamos los valores de X incluidos', f: [`${notation} → X ∈ {${inc.join(', ')}}` + (useComp ? ` · usamos el complemento: X ∉ {${comp.join(', ')}}` : '')] });
+  const set = useComp ? comp : inc;
+  const show = set.length > 7 ? [...set.slice(0, 4), null, ...set.slice(-2)] : set;
+  steps.push({ t: 'Aplicamos la fórmula a cada valor', f: show.map(k => k === null ? '⋮' : bTerm(n, k, p, set.length <= 4).html) });
+  const parts = set.map(k => fmt(P[k], 6));
+  const sumTxt = parts.length > 6 ? parts.slice(0, 3).join(' + ') + ' + … + ' + parts[parts.length - 1] : parts.join(' + ');
+  if (useComp) {
+    const inner = comp.map(k => `P(X = ${k})`).join(' + ');
+    steps.push({ t: 'Restamos de 1 los casos que no cumplen', f: [`${notation} = 1 − [${comp.length > 4 ? '…' : inner}] = 1 − (${sumTxt}) ≈ <b>${fmt(exact, 6)}</b>`] });
+  } else if (inc.length > 1) {
+    steps.push({ t: 'Sumamos las probabilidades', f: [`${notation} = ${sumTxt} ≈ <b>${fmt(exact, 6)}</b>`] });
+  }
+  renderSteps($('#bSteps'), steps);
+  $('#bRes').innerHTML = `<div class="res-top"><span class="res-n" id="bResN">${pct(exact)}</span><span class="res-f">${notation} = ${fmt(exact, 6)}</span></div><p>Existe una probabilidad del <b>${pct(exact)}</b> de que ${binPhrase(type, x, n, u)}.</p>`;
+  const rn = $('#bResN'); rn.dataset.v = (bin._last ?? exact * 100); animNum(rn, exact * 100, 2, ' %'); bin._last = exact * 100;
+  let acc = 0;
+  $('#bTable').innerHTML = `<thead><tr><th>X</th><th>Procedimiento</th><th class="r">P(X)</th><th class="r">%</th><th class="r">Acumulada</th></tr></thead><tbody>` +
+    P.map((v, k) => { acc += v; return `<tr class="${inc.includes(k) ? 'on' : ''}"><td><b>${k}</b></td><td class="mono">${fmt(comb(n, k), 0)} × (${fmt(p, 3)})<sup>${k}</sup> × (${fmt(q, 3)})<sup>${n - k}</sup></td><td class="r">${fmt(v, 6)}</td><td class="r">${pct(v)}</td><td class="r">${fmt(acc, 6)}</td></tr>`; }).join('') +
+    `<tr class="tot"><td>Total</td><td></td><td class="r">${fmt(sum(P), 6)}</td><td class="r">100 %</td><td></td></tr></tbody>`;
+  $('#bChartT').textContent = `Distribución de X · n = ${n}, p = ${fmt(p, 3)}`;
+  $('#bOnce').textContent = `Seleccionar ${n} estudiante${n === 1 ? '' : 's'}`;
+  drawBinom(P, inc, animate);
+  updateSimSummary();
+  if (typeof apx !== 'undefined' && aSegSync) updateApx();
+}
+function drawBinom(P, inc, animate) {
+  const svg = $('#binChart'); const n = bin.n;
+  const H = 320, m = { l: 46, r: 12, t: 26, b: 52 }; frame(svg, H);
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  let ymax = Math.max(...P, ...(bin.sim || [0])) * 100;
+  const st = niceStep(ymax, 5); ymax = Math.ceil(ymax / st) * st || 1;
+  const Y = v => m.t + ih - v / ymax * ih;
+  for (let v = 0; v <= ymax + 1e-9; v += st) { el('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: 'grid' }, svg); txt(svg, m.l - 8, Y(v) + 4, fmt(v, st < 1 ? 1 : 0) + ' %', { 'text-anchor': 'end' }); }
+  const band = iw / (n + 1), bw = Math.min(34, band * 0.62);
+  const prev = binPrev.n === n ? binPrev.h : null;
+  const bars = [];
+  P.forEach((pk, k) => {
+    const cx = m.l + band * (k + 0.5);
+    const path = el('path', { class: 'bar' + (inc.includes(k) ? ' on' : '') }, svg);
+    bars.push({ path, x: cx - bw / 2, h: pk * 100 / ymax * ih, from: prev ? prev[k] : 0 });
+    txt(svg, cx, H - m.b + 18, String(k), { 'text-anchor': 'middle', class: 'lbl' });
+    if (n <= 10) txt(svg, cx, Y(pk * 100) - 8, pct(pk), { 'text-anchor': 'middle', class: inc.includes(k) ? 'lbl' : '' });
+    el('rect', { x: cx - band / 2, y: m.t, width: band, height: ih, class: 'hz', 'data-tip': `X = ${k}|P(X = ${k}) = ${fmt(pk, 6)} (${pct(pk)})` + (bin.sim ? `|Simulado: ${pct(bin.sim[k], 1)}` : '') }, svg);
+  });
+  if (bin.sim) bin.sim.forEach((s, k) => el('circle', { cx: m.l + band * (k + 0.5), cy: Y(s * 100), r: 5, class: 'simdot', 'pointer-events': 'none' }, svg));
+  el('line', { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: 'axis' }, svg);
+  txt(svg, m.l + iw / 2, H - 8, `Número de estudiantes que tardan más de ${bin.u} minutos (X)`, { 'text-anchor': 'middle', class: 'ttl' });
+  binPrev = { n, h: bars.map(b => b.h) };
+  const draw = t => bars.forEach(b => b.path.setAttribute('d', barPath(b.x, Y(0), bw, lerp(b.from, b.h, t))));
+  if (animate) tween(520, draw); else draw(1);
+  $('#bLeg').innerHTML = `<span class="lg"><i class="sw" style="--c:var(--red)"></i>Incluido en P(X ${BSYM[bin.type]} ${bin.x})</span><span class="lg"><i class="sw" style="--c:var(--bar-mute)"></i>Resto</span>` + (bin.sim ? `<span class="lg"><i class="sw dot" style="--c:var(--ink)"></i>Simulado (${fmt(bin.simN, 0)} repeticiones)</span>` : '');
+}
+const binDraw = () => bin.pool[Math.floor(Math.random() * bin.pool.length)];
+function binOnce() {
+  const idx = Array.from({ length: bin.n }, binDraw);
+  const X = idx.filter(i => T[i] > bin.u).length;
+  $('#bCards').innerHTML = idx.map((i, j) => { const yes = T[i] > bin.u; return `<div class="scard ${yes ? 'yes' : ''}" style="animation-delay:${j * 110}ms"><span class="sid">Selección ${j + 1} · #${DATA.id[i]}</span><b>${T[i]} min</b><span>${medName(DATA.medios[DATA.m[i]])} · ${DATA.municipios[DATA.u[i]]}</span><em>${yes ? 'Éxito' : 'Fracaso'}</em></div>`; }).join('');
+  $('#bSimSum').innerHTML = `En esta selección, <b>X = ${X}</b>: ${X === 1 ? 'un estudiante tarda' : X + ' estudiantes tardan'} más de ${bin.u} minutos. La fórmula da P(X = ${X}) = <b>${pct(pmf(bin.n, X, bin.p))}</b>.`;
+}
+function binMany() {
+  if (!bin.simCounts) { bin.simCounts = new Array(bin.n + 1).fill(0); bin.simN = 0; }
+  for (let r = 0; r < 1000; r++) { let X = 0; for (let j = 0; j < bin.n; j++) if (T[binDraw()] > bin.u) X++; bin.simCounts[X]++; }
+  bin.simN += 1000; bin.sim = bin.simCounts.map(c => c / bin.simN);
+  updateBin(false);
+}
+function resetSim() { bin.sim = null; bin.simCounts = null; bin.simN = 0; $('#bCards').innerHTML = '<div class="empty">Pulsa el botón de seleccionar para sacar estudiantes reales de la base.</div>'; $('#bSimSum').textContent = ''; }
+function updateSimSummary() {
+  if (!bin.sim) return;
+  const inc = bIncl(bin.type, bin.x, bin.n);
+  const s = sum(inc.map(k => bin.sim[k])), t = sum(inc.map(k => pmf(bin.n, k, bin.p)));
+  $('#bSimSum').innerHTML = `En <b>${fmt(bin.simN, 0)}</b> repeticiones, P(X ${BSYM[bin.type]} ${bin.x}) simulada = <b>${pct(s)}</b> frente a <b>${pct(t)}</b> de la fórmula.`;
+}
+function initBin() {
+  bSegSync = makeSeg($('#bType'), BTYPES, () => bin.type, v => { bin.type = v; updateBin(false); });
+  bMedSync = makeSeg($('#bMed'), [['-1', 'Todos']].concat(DATA.medios.map((m, i) => [String(i), medName(m)])), () => bin.medio, v => { bin.medio = +v; resetSim(); updateBin(true); });
+  bChipSync = makeChips($('#bPre'), BPRE, it => { bin.type = it.t; bin.x = it.x; if (bin.n !== 5 || bin.u !== 40 || bin.medio !== -1) { bin.n = 5; bin.u = 40; bin.medio = -1; $('#bN').value = 5; $('#bU').value = 40; resetSim(); } updateBin(true); }, it => it.t === bin.type && it.x === bin.x && bin.n === 5 && bin.u === 40 && bin.medio === -1);
+  $('#bN').addEventListener('input', e => { bin.n = +e.target.value; resetSim(); updateBin(true); });
+  $('#bU').addEventListener('input', e => { bin.u = +e.target.value; resetSim(); updateBin(true); });
+  $('#bX').addEventListener('input', e => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) { bin.x = v; updateBin(false); } });
+  $('#bOnce').addEventListener('click', binOnce);
+  $('#bMany').addEventListener('click', binMany);
+  $('#bReset').addEventListener('click', () => { resetSim(); updateBin(false); });
+  updateBin(true);
+}
+
+/* ================= Parada 2: normal ================= */
+const nor = { type: 'gt', a: 40, b: 40 };
+const NTYPES = [['le', 'Hasta a (≤)'], ['gt', 'Más de a (>)'], ['bt', 'Entre a y b']];
+const NPRE = [{ t: 'le', a: 30, l: 'P(X ≤ 30)' }, { t: 'bt', a: 20, b: 40, l: 'P(20 ≤ X ≤ 40)' }, { t: 'gt', a: 40, l: 'P(X > 40)' }];
+let nSegSync, nChipSync;
+function realCount(type, a, b) { if (type === 'le') return T.filter(t => t <= a).length; if (type === 'gt') return T.filter(t => t > a).length; return T.filter(t => t >= a && t <= b).length; }
+function updateNor() {
+  nSegSync(); nChipSync();
+  $('#nBw').hidden = nor.type !== 'bt';
+  const r = normalCalc({ mu: MU, sd: SD, sdTxt: fmt(SD), type: nor.type, a: nor.a, b: nor.b, sym: 'X' });
+  renderSteps($('#nSteps'), r.steps); registerZ('nor', 'Normal', r.zs);
+  const real = realCount(nor.type, r.a, r.b);
+  const what = nor.type === 'le' ? `tarde ${fx(r.a)} minutos o menos` : nor.type === 'gt' ? `tarde más de ${fx(r.a)} minutos` : `tarde entre ${fx(r.a)} y ${fx(r.b)} minutos`;
+  $('#nRes').innerHTML = `<div class="res-top"><span class="res-n" id="nResN">${pct(r.p)}</span><span class="res-f">${r.notation} = ${fmt(r.p, 4)}</span></div><p>Según el modelo normal, la probabilidad de que un estudiante ${what} es <b>${pct(r.p)}</b>.</p><p class="real">En la base real: ${real} de 250 estudiantes (${pct(real / N)}). Valor exacto sin redondear Z: ${pct(r.pEx)}.</p>`;
+  const rn = $('#nResN'); rn.dataset.v = nor._last ?? r.p * 100; animNum(rn, r.p * 100, 2, ' %'); nor._last = r.p * 100;
+  drawNormal($('#normChart'), { key: 'n', mu: MU, sd: SD, lo: r.lo, hi: r.hi, dom: [-10, 80], sym: 'X', label: pct(r.p), muLabel: `μ = ${fmt(MU)}`, zs: r.zs });
+  updateCmp(r);
+}
+function updateCmp(cur) {
+  const rows = NPRE.map(it => { const r = normalCalc({ mu: MU, sd: SD, sdTxt: '', type: it.t, a: it.a, b: it.b ?? it.a, sym: 'X' }); return { l: it.l, p: r.p, real: realCount(it.t, it.a, it.b) }; });
+  const isPre = NPRE.some(it => it.t === nor.type && it.a === nor.a && (it.t !== 'bt' || it.b === nor.b));
+  if (!isPre) rows.push({ l: cur.notation + ' (tu consulta)', p: cur.p, real: realCount(nor.type, cur.a, cur.b) });
+  $('#cmpTable').innerHTML = `<thead><tr><th>Pregunta</th><th class="r">Modelo</th><th class="r">Real</th><th class="r">Diferencia</th></tr></thead><tbody>` + rows.map(r => { const d = (r.p - r.real / N) * 100; return `<tr><td>${r.l}</td><td class="r">${pct(r.p)}</td><td class="r">${r.real} (${pct(r.real / N)})</td><td class="r">${d > 0 ? '+' : ''}${fmt(d, 2)} pp</td></tr>`; }).join('') + '</tbody>';
+}
+function drawHist() {
+  const svg = $('#histChart'); const H = 300, m = { l: 40, r: 12, t: 16, b: 50 }; frame(svg, H);
+  const iw = W - m.l - m.r, ih = H - m.t - m.b, x0 = 0, x1 = 80;
+  const X = v => m.l + (v - x0) / (x1 - x0) * iw;
+  const bins = []; for (let a = 5; a < 75; a += 5) { const b = a + 5; const c = T.filter(t => t >= a && (t < b || (b === 75 && t <= b))).length; bins.push({ a, b, c, e: N * (Phi((b - MU) / SD) - Phi((a - MU) / SD)) }); }
+  const curve = v => N * 5 * pdf(v, MU, SD);
+  let ymax = Math.max(...bins.map(b => b.c), curve(MU)); const st = niceStep(ymax, 5); ymax = Math.ceil(ymax / st) * st;
+  const Y = v => m.t + ih - v / ymax * ih;
+  for (let v = 0; v <= ymax + 1e-9; v += st) { el('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: 'grid' }, svg); txt(svg, m.l - 8, Y(v) + 4, fmt(v, 0), { 'text-anchor': 'end' }); }
+  for (let v = 0; v <= 80; v += 10) txt(svg, X(v), Y(0) + 17, String(v), { 'text-anchor': 'middle' });
+  const paths = bins.map(b => ({ b, p: el('path', { class: 'hbar' }, svg) }));
+  let d = ''; for (let i = 0; i <= 160; i++) { const v = x0 + (x1 - x0) * i / 160; d += (i ? 'L' : 'M') + X(v).toFixed(1) + ',' + Y(curve(v)).toFixed(1); }
+  el('path', { d, class: 'mline red' }, svg);
+  el('line', { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: 'axis' }, svg);
+  bins.forEach(b => el('rect', { x: X(b.a), y: m.t, width: X(b.b) - X(b.a), height: ih, class: 'hz', 'data-tip': `${b.a} a ${b.b} min|Estudiantes reales: ${b.c}|Predicción del modelo: ${fmt(b.e, 1)}` }, svg));
+  txt(svg, m.l + iw / 2, H - 8, 'Tiempo de desplazamiento (minutos)', { 'text-anchor': 'middle', class: 'ttl' });
+  tween(800, t => paths.forEach(({ b, p }) => p.setAttribute('d', barPath(X(b.a) + 1, Y(0), X(b.b) - X(b.a) - 2, (Y(0) - Y(b.c)) * t))));
+}
+function initNor() {
+  nSegSync = makeSeg($('#nType'), NTYPES, () => nor.type, v => { nor.type = v; if (v === 'bt' && nor.b <= nor.a) nor.b = nor.a + 10; $('#nB').value = nor.b; updateNor(); });
+  nChipSync = makeChips($('#nPre'), NPRE, it => { nor.type = it.t; nor.a = it.a; nor.b = it.b ?? it.a; $('#nA').value = nor.a; $('#nB').value = nor.b; updateNor(); }, it => it.t === nor.type && it.a === nor.a && (it.t !== 'bt' || it.b === nor.b));
+  $('#nA').addEventListener('input', e => { const v = parseFloat(e.target.value); if (!isNaN(v)) { nor.a = clamp(v, -10, 90); updateNor(); } });
+  $('#nB').addEventListener('input', e => { const v = parseFloat(e.target.value); if (!isNaN(v)) { nor.b = clamp(v, -10, 90); updateNor(); } });
+  updateNor(); drawHist();
+  $('#negP').textContent = pct(tabla(zRound((0 - MU) / SD)));
+}
+
+/* Aproximación normal a la binomial */
+const apx = { n: 30, type: 'ge', x: 10 };
+const ATYPES = [['ex', 'Exactamente'], ['le', 'Como máximo'], ['ge', 'Por lo menos']];
+let aSegSync = null;
+function updateApx() {
+  aSegSync();
+  const n = apx.n, p = bin.p, q = 1 - p;
+  apx.x = clamp(apx.x, 0, n); const xi = $('#aX'); xi.max = n; xi.value = apx.x; $('#aNo').textContent = n;
+  const x = apx.x, mu = n * p, sd4 = r4(Math.sqrt(n * p * q));
+  if (!(sd4 > 0)) { $('#aRes').innerHTML = '<p>Con este grupo p es 0 o 1, así que no hay variación para aproximar.</p>'; $('#aSteps').innerHTML = ''; frame($('#aproxChart'), 300); return; }
+  const okP = n * p >= 5, okQ = n * q >= 5;
+  let lo, hi, cnot, inc = [];
+  if (apx.type === 'ex') { lo = x - 0.5; hi = x + 0.5; cnot = `P(${fmt(lo, 1)} ≤ X ≤ ${fmt(hi, 1)})`; inc = [x]; }
+  else if (apx.type === 'le') { lo = -Infinity; hi = x + 0.5; cnot = `P(X ≤ ${fmt(hi, 1)})`; for (let k = 0; k <= x; k++) inc.push(k); }
+  else { lo = x - 0.5; hi = Infinity; cnot = `P(X ≥ ${fmt(lo, 1)})`; for (let k = x; k <= n; k++) inc.push(k); }
+  const notation = `P(X ${BSYM[apx.type]} ${x})`;
+  const exact = sum(inc.map(k => pmf(n, k, p)));
+  const steps = [];
+  steps.push({ t: 'Verificamos la condición np ≥ 5 y nq ≥ 5', f: [`np = ${n} × ${fmt(p, 3)} = ${fmt(n * p, 2)} <span class="${okP ? 'ok' : 'warn'}">${okP ? '✓ cumple' : '✗ no cumple'}</span> · nq = ${n} × ${fmt(q, 3)} = ${fmt(n * q, 2)} <span class="${okQ ? 'ok' : 'warn'}">${okQ ? '✓ cumple' : '✗ no cumple'}</span>`] });
+  steps.push({ t: 'Calculamos la media y la desviación de la binomial', f: [`μ = np = ${fmt(mu, 2)} · σ = √(npq) = √(${n} × ${fmt(p, 3)} × ${fmt(q, 3)}) = ${fmt(sd4, 4)}`] });
+  steps.push({ t: 'Corrección por continuidad (±0,5)', f: [`${notation} → ${cnot}`] });
+  const zs = [];
+  [lo, hi].forEach(v => { if (!isFinite(v)) return; const z = (v - mu) / sd4, zr = zRound(z); zs.push({ v, z, zr, l: zLookup(zr) }); });
+  steps.push({ t: 'Estandarizamos y buscamos en la tabla Z', f: zs.map(o => `Z = (${fmt(o.v, 1)} − ${fmt(mu, 2)}) / ${fmt(sd4, 4)} = ${fmt(o.z, 4)} → <b>${fmt(o.zr)}</b> · ${o.l.txt}`), z: zs.map(o => o.l.html).join('') });
+  let pa;
+  if (apx.type === 'ex') { pa = r4(zs[1].l.val - zs[0].l.val); steps.push({ t: 'Restamos las áreas', f: [`${cnot} = ${fmt(zs[1].l.val, 4)} − ${fmt(zs[0].l.val, 4)} = <b>${fmt(pa, 4)}</b>`] }); }
+  else if (apx.type === 'le') { pa = zs[0].l.val; steps.push({ t: 'Área a la izquierda', f: [`${cnot} = Φ(${fmt(zs[0].zr)}) = <b>${fmt(pa, 4)}</b>`] }); }
+  else { pa = r4(1 - zs[0].l.val); steps.push({ t: 'Complemento (área a la derecha)', f: [`${cnot} = 1 − ${fmt(zs[0].l.val, 4)} = <b>${fmt(pa, 4)}</b>`] }); }
+  renderSteps($('#aSteps'), steps); registerZ('apx', 'Aproximación', zs.map(o => o.zr));
+  const diff = (pa - exact) * 100;
+  $('#aRes').innerHTML = `<div class="res-top"><span class="res-n">${pct(pa)}</span><span class="res-f">${notation} ≈ ${fmt(pa, 4)} (normal)</span></div><p>Con la fórmula binomial exacta da <b>${pct(exact)}</b>: la aproximación se desvía ${fmt(Math.abs(diff), 2)} puntos porcentuales.${!(okP && okQ) ? ' <span class="warn">No se cumple la condición, así que la aproximación no es confiable.</span>' : ''}</p>`;
+  $('#aChartT').textContent = `Binomial n = ${n}, p = ${fmt(p, 3)} y normal μ = ${fmt(mu, 2)}, σ = ${fmt(sd4, 2)}`;
+  drawApprox(n, p, mu, sd4, inc, lo, hi);
+}
+function drawApprox(n, p, mu, sd, inc, lo, hi) {
+  const svg = $('#aproxChart'); const H = 300, m = { l: 44, r: 12, t: 18, b: 50 }; frame(svg, H);
+  const kmin = Math.max(0, Math.floor(mu - 4.2 * sd)), kmax = Math.min(n, Math.ceil(mu + 4.2 * sd));
+  const x0 = kmin - 0.7, x1 = kmax + 0.7, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const X = v => m.l + (v - x0) / (x1 - x0) * iw;
+  const P = []; for (let k = kmin; k <= kmax; k++) P.push(pmf(n, k, p));
+  let ymax = Math.max(...P, pdf(mu, mu, sd)) * 100; const st = niceStep(ymax, 5); ymax = Math.ceil(ymax / st) * st;
+  const Y = v => m.t + ih - v / ymax * ih;
+  for (let v = 0; v <= ymax + 1e-9; v += st) { el('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: 'grid' }, svg); txt(svg, m.l - 8, Y(v) + 4, fmt(v, st < 1 ? 1 : 0) + ' %', { 'text-anchor': 'end' }); }
+  const band = iw / (x1 - x0), bw = Math.min(24, band * 0.7);
+  const every = Math.ceil((kmax - kmin + 1) / 16);
+  const bars = [];
+  P.forEach((pk, i) => { const k = kmin + i; const path = el('path', { class: 'bar' + (inc.includes(k) ? ' on' : '') }, svg); bars.push({ path, x: X(k) - bw / 2, h: Y(0) - Y(pk * 100) }); if ((k - kmin) % every === 0) txt(svg, X(k), Y(0) + 17, String(k), { 'text-anchor': 'middle' }); el('rect', { x: X(k) - band / 2, y: m.t, width: band, height: ih, class: 'hz', 'data-tip': `X = ${k}|Binomial: ${pct(pk)}|Normal (k ± 0,5): ${pct(Phi((k + 0.5 - mu) / sd) - Phi((k - 0.5 - mu) / sd))}` }, svg); });
+  let d = ''; for (let i = 0; i <= 160; i++) { const v = x0 + (x1 - x0) * i / 160; d += (i ? 'L' : 'M') + X(v).toFixed(1) + ',' + Y(pdf(v, mu, sd) * 100).toFixed(1); }
+  el('path', { d, class: 'mline', 'pointer-events': 'none' }, svg);
+  [lo, hi].forEach(v => { if (isFinite(v) && v >= x0 && v <= x1) { el('line', { x1: X(v), x2: X(v), y1: m.t + 8, y2: Y(0), class: 'bound dash' }, svg); txt(svg, X(v), m.t + 4, fmt(v, 1), { 'text-anchor': 'middle', class: 'lbl' }); } });
+  el('line', { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: 'axis' }, svg);
+  txt(svg, m.l + iw / 2, H - 8, `Estudiantes con viaje de más de ${bin.u} min (X)`, { 'text-anchor': 'middle', class: 'ttl' });
+  tween(500, t => bars.forEach(b => b.path.setAttribute('d', barPath(b.x, Y(0), bw, b.h * t))));
+}
+function initApx() {
+  aSegSync = makeSeg($('#aType'), ATYPES, () => apx.type, v => { apx.type = v; updateApx(); });
+  $('#aN').addEventListener('input', e => { apx.n = +e.target.value; updateApx(); });
+  $('#aX').addEventListener('input', e => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) { apx.x = v; updateApx(); } });
+  updateApx();
+}
+
+/* ================= Parada 3: muestral ================= */
+const FORO = [37.89, 34.42, 33.83, 32.58, 34.86, 35.00, 33.75, 36.11, 34.11, 35.78, 34.56, 30.19, 35.11, 35.75, 35.53, 34.06, 34.36, 30.08, 31.69, 33.81];
+const mue = { n: 36, fpc: true, type: 'bt', a: 30, b: 40, means: [], src: 'sim', busy: false };
+const MTYPES = [['le', 'Hasta a (≤)'], ['gt', 'Más de a (>)'], ['bt', 'Entre a y b']];
+const MPRE = [{ t: 'le', a: 30, l: 'P(x̄ ≤ 30)' }, { t: 'gt', a: 40, l: 'P(x̄ > 40)' }, { t: 'bt', a: 30, b: 40, l: 'P(30 ≤ x̄ ≤ 40)' }];
+let mSegSync, mChipSync, dots = [], meansPrev = { key: '', h: [] };
+const fpcF = n => Math.sqrt((N - n) / (N - 1));
+const SE = () => r4(SIG / Math.sqrt(mue.n) * (mue.fpc ? fpcF(mue.n) : 1));
+function updateFicha() {
+  const n = mue.n, f = n / N, se = SE();
+  $('#mNo').textContent = n;
+  $('#mFicha').innerHTML = [
+    ['Población (N)', '250 estudiantes', 'la base completa'],
+    ['Media poblacional (<span class="nt">μ</span>)', fmt(MU) + ' min', 'μ<sub>x̄</sub> = μ'],
+    ['Desviación poblacional (<span class="nt">σ</span>)', fmt(SIG) + ' min', 'divide entre N = 250'],
+    ['Tamaño de muestra (<span class="nt">n</span>)', `${n} estudiantes`, 'sin reemplazo dentro de cada muestra'],
+    ['Fracción de muestreo', `f = n/N = ${fmt(f * 100, 1)} %`, f > 0.05 ? 'mayor que 5 % → se aplica la corrección' : 'menor o igual a 5 % → la corrección es opcional'],
+    ['Muestras posibles', `M = C(250, ${n})`, `≈ ${bigSci(combBig(N, n))} muestras distintas`],
+    ['Error estándar (<span class="nt">σ<sub>x̄</sub></span>)', fmt(se, 4) + ' min', mue.fpc ? 'con factor de corrección finita' : 'sin factor de corrección'],
+  ].map(([k, v, s]) => `<div><dt>${k}</dt><dd>${v}<small>${s}</small></dd></div>`).join('');
+  $('#mRule').innerHTML = `n/N = ${n}/250 = <b>${fmt(f * 100, 1)} %</b> ${f > 0.05 ? '&gt; 5 %: conviene aplicar el factor de corrección √[(N − n)/(N − 1)] = ' + fmt(fpcF(n), 4) : '≤ 5 %: el factor de corrección casi no cambia el resultado'} · ${n > 30 ? `n = ${n} &gt; 30: por el TLC, x̄ es aproximadamente normal.` : `n = ${n} ≤ 30: la forma de x̄ todavía depende de la población.`}`;
+}
+function updateMCalc() {
+  mSegSync(); mChipSync();
+  $('#mBw').hidden = mue.type !== 'bt';
+  const n = mue.n, se = SE();
+  const r = normalCalc({ mu: MU, sd: se, sdTxt: fmt(se, 4), type: mue.type, a: mue.a, b: mue.b, sym: 'x̄' });
+  const seStep = { t: 'Calculamos el error estándar', f: [mue.fpc ? `σ<sub>x̄</sub> = (σ / √n) · √[(N − n)/(N − 1)] = (${fmt(SIG)} / √${n}) · √(${N - n}/${N - 1}) = ${fmt(SIG / Math.sqrt(n), 4)} × ${fmt(fpcF(n), 4)} = <b>${fmt(se, 4)}</b>` : `σ<sub>x̄</sub> = σ / √n = ${fmt(SIG)} / √${n} = <b>${fmt(se, 4)}</b>`] };
+  renderSteps($('#mSteps'), [seStep, ...r.steps]); registerZ('mue', 'Muestral', r.zs);
+  const what = mue.type === 'le' ? `sea de ${fx(r.a)} minutos o menos` : mue.type === 'gt' ? `supere los ${fx(r.a)} minutos` : `esté entre ${fx(r.a)} y ${fx(r.b)} minutos`;
+  $('#mRes').innerHTML = `<div class="res-top"><span class="res-n" id="mResN">${pct(r.p)}</span><span class="res-f">${r.notation} = ${fmt(r.p, 4)}</span></div><p>La probabilidad de que el tiempo promedio de una muestra de ${n} estudiantes ${what} es <b>${pct(r.p)}</b>.</p><p class="real">Valor exacto sin redondear Z: ${pct(r.pEx)}.</p>`;
+  const rn = $('#mResN'); rn.dataset.v = mue._last ?? r.p * 100; animNum(rn, r.p * 100, 2, ' %'); mue._last = r.p * 100;
+  const lo = Math.min(MU - 4.2 * se, isFinite(r.lo) ? r.lo - se : Infinity), hi = Math.max(MU + 4.2 * se, isFinite(r.hi) ? r.hi + se : -Infinity);
+  $('#mChartT').textContent = `Distribución de x̄ · N(${fmt(MU)}; ${fmt(se, 2)})`;
+  drawNormal($('#mNormChart'), { key: 'm', mu: MU, sd: se, lo: r.lo, hi: r.hi, dom: [Math.max(lo, 0), Math.min(hi, 80)], sym: 'x̄', label: pct(r.p), muLabel: `μx̄ = ${fmt(MU)}`, zs: r.zs });
+  if (zReady) updateZ(true);
+}
+function drawPop() {
+  const svg = $('#popGrid'); while (svg.firstChild) svg.removeChild(svg.firstChild); dots = [];
+  T.forEach((t, i) => {
+    const c = i % 25, r = Math.floor(i / 25);
+    const cls = t <= 30 ? 'c1' : t <= 40 ? 'c2' : 'c3';
+    dots.push(el('circle', { cx: 12 + c * 24, cy: 12 + r * 24, r: 8.5, class: cls, 'data-tip': `Estudiante #${DATA.id[i]}|${t} minutos|${medName(DATA.medios[DATA.m[i]])} · ${DATA.municipios[DATA.u[i]]}` }, svg));
+  });
+  const c1 = T.filter(t => t <= 30).length, c2 = T.filter(t => t > 30 && t <= 40).length, c3 = N - c1 - c2;
+  $('#lg1').textContent = `≤ 30 min (${c1})`; $('#lg2').textContent = `31–40 min (${c2})`; $('#lg3').textContent = `> 40 min (${c3})`;
+}
+function sampleIdx(n) { const a = [...Array(N).keys()]; for (let i = 0; i < n; i++) { const j = i + Math.floor(Math.random() * (N - i)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, n); }
+function setBusy(b) { mue.busy = b; ['#m1', '#m20', '#m1000', '#mForo', '#mReset'].forEach(s => { $(s).disabled = b; }); $('#mN').disabled = b; $('#mF').disabled = b; }
+function showSample(k, idx, m) {
+  const vals = idx.map(i => T[i]);
+  $('#sInfo').innerHTML = `Muestra <b>${k}</b>: ${idx.length} estudiantes · suma = <b>${fmt(sum(vals), 0)} min</b> · x̄ = ${fmt(sum(vals), 0)} ÷ ${idx.length} = <b>${fmt(m)} min</b>`;
+}
+async function takeSamples(count, perDot) {
+  if (mue.busy) return; setBusy(true);
+  if (mue.src === 'foro') { mue.means = []; mue.src = 'sim'; }
+  const svg = $('#popGrid');
+  for (let s = 0; s < count; s++) {
+    const idx = sampleIdx(mue.n); const m = avg(idx.map(i => T[i]));
+    svg.classList.add('sampling'); dots.forEach(d => d.classList.remove('sel'));
+    if (perDot > 0 && !RM) { for (const i of idx) { dots[i].classList.add('sel'); await sleep(perDot); } }
+    else idx.forEach(i => dots[i].classList.add('sel'));
+    showSample(mue.means.length + 1, idx, m);
+    if (perDot > 0) await sleep(count > 1 ? 90 : 380);
+    mue.means.push(m);
+    drawMeans(true); updateMStats(true);
+  }
+  setBusy(false);
+}
+function takeMany(k) {
+  if (mue.busy) return;
+  if (mue.src === 'foro') { mue.means = []; mue.src = 'sim'; }
+  let idx;
+  for (let s = 0; s < k; s++) { idx = sampleIdx(mue.n); mue.means.push(avg(idx.map(i => T[i]))); }
+  $('#popGrid').classList.add('sampling'); dots.forEach(d => d.classList.remove('sel')); idx.forEach(i => dots[i].classList.add('sel'));
+  showSample(mue.means.length, idx, mue.means[mue.means.length - 1]);
+  drawMeans(true); updateMStats(false);
+}
+function resetMeans() { mue.means = []; mue.src = 'sim'; $('#popGrid').classList.remove('sampling'); dots.forEach(d => d.classList.remove('sel')); $('#sInfo').textContent = 'Aún no hay muestras. Pulsa "Tomar 1 muestra" para ver cómo se eligen los estudiantes al azar.'; drawMeans(false); updateMStats(false); }
+function loadForo() {
+  if (mue.busy) return;
+  if (mue.n !== 36 || !mue.fpc) { mue.n = 36; mue.fpc = true; $('#mN').value = 36; $('#mF').checked = true; updateFicha(); updateMCalc(); }
+  mue.means = FORO.slice(); mue.src = 'foro';
+  $('#popGrid').classList.remove('sampling'); dots.forEach(d => d.classList.remove('sel'));
+  $('#sInfo').innerHTML = `Cargadas las <b>20 medias</b> que reportó el Grupo 4 en el foro (muestras de 36 estudiantes). Suma de las medias = <b>${fmt(sum(FORO))}</b>; promedio = ${fmt(sum(FORO))} ÷ 20 = <b>${fmt(avg(FORO))} min</b>.`;
+  drawMeans(true); updateMStats(false);
+}
+function updateMStats(newOne) {
+  const k = mue.means.length, se = SE();
+  const mm = k ? avg(mue.means) : NaN, ms = k > 1 ? sdev(mue.means) : NaN;
+  $('#mStats').innerHTML = [
+    ['Muestras', k ? fmt(k, 0) : '0', mue.src === 'foro' ? 'datos del foro del grupo' : 'tomadas de la base'],
+    ['Promedio de las medias', k ? fmt(mm) : '–', `μ = ${fmt(MU)}` + (k ? ` · diferencia ${fmt(mm - MU)}` : '')],
+    ['Desviación de las medias', k > 1 ? fmt(ms) : '–', `σ<sub>x̄</sub> teórica = ${fmt(se, 2)}`],
+  ].map(([a, b, c]) => `<div><dt>${a}</dt><dd>${b}<small>${c}</small></dd></div>`).join('');
+  const list = mue.means.map((v, i) => [i + 1, v]).slice(mue.src === 'foro' ? 0 : -20);
+  $('#mListT').textContent = mue.src === 'foro' ? 'Las 20 medias del Grupo 4' : (k > 20 ? `Últimas 20 de ${fmt(k, 0)} medias` : 'Medias obtenidas');
+  $('#mList').innerHTML = list.length ? list.map(([i, v], j) => `<span class="${newOne && j === list.length - 1 ? 'new' : ''}">M${i}: ${fmt(v)}</span>`).join('') : '<span>Todavía no hay medias.</span>';
+}
+function drawMeans(animate) {
+  const svg = $('#meansChart'); const H = 280, m = { l: 36, r: 12, t: 16, b: 48 }; frame(svg, H);
+  const se = SE(), means = mue.means, k = means.length;
+  let x0 = MU - 4.5 * se, x1 = MU + 4.5 * se;
+  if (k) { x0 = Math.min(x0, Math.min(...means) - se * 0.5); x1 = Math.max(x1, Math.max(...means) + se * 0.5); }
+  const bw = niceStep(x1 - x0, 16); x0 = Math.floor(x0 / bw) * bw; x1 = Math.ceil(x1 / bw) * bw;
+  const nb = Math.round((x1 - x0) / bw); const counts = new Array(nb).fill(0);
+  means.forEach(v => { counts[clamp(Math.floor((v - x0) / bw), 0, nb - 1)]++; });
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const X = v => m.l + (v - x0) / (x1 - x0) * iw;
+  const ref = k || 20; const curve = v => ref * bw * pdf(v, MU, se);
+  let ymax = Math.max(...counts, curve(MU)) * 1.08; const st = Math.max(1, niceStep(ymax, 5)); ymax = Math.ceil(ymax / st) * st;
+  const Y = v => m.t + ih - v / ymax * ih;
+  for (let v = 0; v <= ymax + 1e-9; v += st) { el('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: 'grid' }, svg); txt(svg, m.l - 7, Y(v) + 4, fmt(v, 0), { 'text-anchor': 'end' }); }
+  const tst = niceStep(x1 - x0, 7);
+  for (let v = Math.ceil(x0 / tst) * tst; v <= x1 + 1e-9; v += tst) txt(svg, X(v), Y(0) + 17, fmt(v, tst < 1 ? 1 : 0), { 'text-anchor': 'middle' });
+  const key = `${x0}|${bw}|${mue.n}`; const prev = meansPrev.key === key ? meansPrev.h : null;
+  const bars = counts.map((c, i) => ({ p: el('path', { class: 'mbar' }, svg), x: X(x0 + i * bw) + 1, w: X(x0 + (i + 1) * bw) - X(x0 + i * bw) - 2, h: Y(0) - Y(c), from: prev ? prev[i] || 0 : 0 }));
+  let d = ''; for (let i = 0; i <= 160; i++) { const v = x0 + (x1 - x0) * i / 160; d += (i ? 'L' : 'M') + X(v).toFixed(1) + ',' + Y(curve(v)).toFixed(1); }
+  el('path', { d, class: 'mline red', 'pointer-events': 'none' }, svg);
+  el('line', { x1: X(MU), x2: X(MU), y1: m.t, y2: Y(0), class: 'muline' }, svg);
+  txt(svg, X(MU) + 6, m.t + 10, `μ = ${fmt(MU)}`, { class: 'lbl' });
+  el('line', { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: 'axis' }, svg);
+  counts.forEach((c, i) => el('rect', { x: X(x0 + i * bw), y: m.t, width: X(x0 + (i + 1) * bw) - X(x0 + i * bw), height: ih, class: 'hz', 'data-tip': `x̄ entre ${fmt(x0 + i * bw, bw < 1 ? 2 : 1)} y ${fmt(x0 + (i + 1) * bw, bw < 1 ? 2 : 1)} min|${c} muestra${c === 1 ? '' : 's'}` }, svg));
+  txt(svg, m.l + iw / 2, H - 8, `Tiempo promedio de la muestra, x̄ (minutos) · n = ${mue.n}`, { 'text-anchor': 'middle', class: 'ttl' });
+  if (!k) txt(svg, m.l + iw / 2, m.t + ih * 0.42, 'Toma una muestra para ver dónde cae su promedio', { 'text-anchor': 'middle', class: 'lbl' });
+  meansPrev = { key, h: bars.map(b => b.h) };
+  const draw = t => bars.forEach(b => b.p.setAttribute('d', barPath(b.x, Y(0), b.w, lerp(b.from, b.h, t))));
+  if (animate) tween(360, draw); else draw(1);
+}
+function initMue() {
+  drawPop();
+  mSegSync = makeSeg($('#mType'), MTYPES, () => mue.type, v => { mue.type = v; if (v === 'bt' && mue.b <= mue.a) mue.b = mue.a + 5; $('#mB').value = mue.b; updateMCalc(); });
+  mChipSync = makeChips($('#mPre'), MPRE, it => { mue.type = it.t; mue.a = it.a; mue.b = it.b ?? it.a; $('#mA').value = mue.a; $('#mB').value = mue.b; updateMCalc(); }, it => it.t === mue.type && it.a === mue.a && (it.t !== 'bt' || it.b === mue.b));
+  $('#mA').addEventListener('input', e => { const v = parseFloat(e.target.value); if (!isNaN(v)) { mue.a = clamp(v, 0, 80); updateMCalc(); } });
+  $('#mB').addEventListener('input', e => { const v = parseFloat(e.target.value); if (!isNaN(v)) { mue.b = clamp(v, 0, 80); updateMCalc(); } });
+  $('#mN').addEventListener('input', e => { mue.n = +e.target.value; updateFicha(); updateMCalc(); resetMeans(); });
+  $('#mF').addEventListener('change', e => { mue.fpc = e.target.checked; updateFicha(); updateMCalc(); drawMeans(false); updateMStats(false); });
+  $('#m1').addEventListener('click', () => takeSamples(1, Math.max(6, 700 / mue.n)));
+  $('#m20').addEventListener('click', () => takeSamples(20, Math.max(1, 140 / mue.n)));
+  $('#m1000').addEventListener('click', () => takeMany(1000));
+  $('#mForo').addEventListener('click', loadForo);
+  $('#mReset').addEventListener('click', resetMeans);
+  updateFicha(); updateMCalc(); drawMeans(false); updateMStats(false);
+}
+
+/* ================= Tabla Z interactiva ================= */
+const zx = { z: 0.45, type: 'right', note: '' };
+const ZTYPES = [['left', 'Izquierda Φ(z)'], ['right', 'Derecha 1 − Φ(z)'], ['mid', 'Entre 0 y z (área A)'], ['sym', 'Entre −z y z']];
+const ZPRE = [{ l: 'Z = 0,45 · P(X > 40)', z: 0.45, t: 'right' }, { l: 'Z = −1,11 · 20 min', z: -1.11, t: 'left' }, { l: 'Z = 1,5 · ejemplo de clase', z: 1.5, t: 'mid' }, { l: 'Φ = 0,90 · percentil 90', p: 0.9 }, { l: 'Φ = 0,95', p: 0.95 }];
+const usedZ = {};
+let zReady = false, zSide = 'p', zSegSync, zSideSync, hvEls = null;
+function registerZ(src, label, zs) { usedZ[src] = { label, zs: zs.filter(z => Math.abs(z) <= 3.49) }; refreshUsed(); }
+function refreshUsed() {
+  if (!zReady) return;
+  $$('#zScroll td.used').forEach(c => c.classList.remove('used'));
+  const chips = [];
+  Object.values(usedZ).forEach(u => u.zs.forEach(z => { const { neg, row, col } = zParts(z); const c = document.getElementById(cellId(neg, row, col)); if (c) c.classList.add('used'); chips.push([u.label, z]); }));
+  $('#zUsed').innerHTML = chips.map(([l, z]) => `<button type="button" class="chip" data-z="${z}">${l}: ${fmt(z)}</button>`).join('');
+}
+function buildZTable() {
+  const mk = neg => {
+    let h = `<table class="zt" data-side="${neg ? 'n' : 'p'}"><thead><tr><th>z</th>` + Array.from({ length: 10 }, (_, c) => `<th data-c="${c}">${fmt(c / 100, 2)}</th>`).join('') + '</tr></thead><tbody>';
+    const rows = []; for (let r = 0; r <= 34; r++) rows.push(r);
+    (neg ? rows.slice().reverse() : rows).forEach(r => {
+      const row = r / 10;
+      h += `<tr data-r="${r}"><th>${rowLabel(neg, row)}</th>`;
+      for (let c = 0; c < 10; c++) { const col = c / 100; const z = (neg ? -1 : 1) * Math.round((row + col) * 100) / 100; const v = tabla(z); h += `<td id="${cellId(neg, row, col)}" data-z="${z}" data-c="${c}" data-tip="Z = ${fmt(z)}|Φ(z) = ${fmt(v, 4)}|Toca para seleccionar">${fmt(v, 4)}</td>`; }
+      h += '</tr>';
+    });
+    return h + '</tbody></table>';
+  };
+  $('#zScroll').innerHTML = mk(true) + mk(false);
+  zReady = true;
+}
+function showSide(s) { zSide = s; $$('#zScroll .zt').forEach(t => { t.hidden = t.dataset.side !== s; }); zSideSync(); }
+function zRegion() { const z = zx.z, a = Math.abs(z); if (zx.type === 'left') return [-3.6, z]; if (zx.type === 'right') return [z, 3.6]; if (zx.type === 'mid') return [Math.min(0, z), Math.max(0, z)]; return [-a, a]; }
+function zCalc() {
+  const z = zx.z, a = Math.abs(z), v = tabla(z), L = zLookup(z);
+  let p, f;
+  if (zx.type === 'left') { p = v; f = `P(Z ≤ ${fmt(z)}) = Φ(${fmt(z)}) = <b>${fmt(v, 4)}</b>`; }
+  else if (zx.type === 'right') { p = r4(1 - v); f = `P(Z > ${fmt(z)}) = 1 − Φ(${fmt(z)}) = 1 − ${fmt(v, 4)} = <b>${fmt(p, 4)}</b>`; }
+  else if (zx.type === 'mid') { p = r4(Math.abs(v - 0.5)); f = z >= 0 ? `P(0 ≤ Z ≤ ${fmt(z)}) = Φ(${fmt(z)}) − 0,5000 = ${fmt(v, 4)} − 0,5000 = <b>${fmt(p, 4)}</b>` : `P(${fmt(z)} ≤ Z ≤ 0) = 0,5000 − Φ(${fmt(z)}) = 0,5000 − ${fmt(v, 4)} = <b>${fmt(p, 4)}</b>`; }
+  else { const va = tabla(a), vb = tabla(-a); p = r4(va - vb); f = `P(−${fmt(a)} ≤ Z ≤ ${fmt(a)}) = Φ(${fmt(a)}) − Φ(−${fmt(a)}) = ${fmt(va, 4)} − ${fmt(vb, 4)} = <b>${fmt(p, 4)}</b>`; }
+  return { p, f, L };
+}
+const zPrevArea = { a: null, b: null };
+function drawZ(instant, p) {
+  const svg = $('#zChart'); const H = 280, m = { l: 16, r: 16, t: 34, b: 58 }; frame(svg, H);
+  const x0 = -3.6, x1 = 3.6, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const X = v => m.l + (v - x0) / (x1 - x0) * iw, f = v => pdf(v, 0, 1), ymax = f(0) * 1.12, Y = v => m.t + ih - v / ymax * ih;
+  for (let v = -3; v <= 3; v++) { el('line', { x1: X(v), x2: X(v), y1: m.t, y2: Y(0), class: 'grid' }, svg); txt(svg, X(v), Y(0) + 17, fmt(v, 0), { 'text-anchor': 'middle' }); }
+  const area = el('path', { class: 'zarea' }, svg);
+  let d = ''; for (let i = 0; i <= 200; i++) { const v = x0 + (x1 - x0) * i / 200; d += (i ? 'L' : 'M') + X(v).toFixed(1) + ',' + Y(f(v)).toFixed(1); }
+  el('path', { d, class: 'curve' }, svg);
+  el('line', { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: 'axis' }, svg);
+  const z = zx.z, a = Math.abs(z);
+  const marks = zx.type === 'sym' ? [-a, a] : [z];
+  if (zx.type === 'mid') el('line', { x1: X(0), x2: X(0), y1: Y(0), y2: Y(f(0)), class: 'muline' }, svg);
+  marks.forEach((v, i) => {
+    el('line', { x1: X(v), x2: X(v), y1: Y(0), y2: Y(f(v)), class: 'bound' }, svg);
+    el('circle', { cx: X(v), cy: Y(f(v)), r: 8, class: 'zhandle' }, svg);
+    if (marks.length === 2 && i === 0 && X(marks[1]) - X(v) < 70) return;
+    txt(svg, clamp(X(v), m.l + 34, W - m.r - 34), Y(0) + 38, `z = ${fmt(v)}`, { 'text-anchor': 'middle', class: 'lbl' });
+  });
+  const [ra, rb] = zRegion(); const lp = labelPos(X, Y, f, ra, rb, 0, m);
+  txt(svg, lp.x, lp.y, pct(p), { 'text-anchor': 'middle', class: 'big' });
+  txt(svg, m.l, H - 8, 'Arrastra sobre la curva para mover Z', { class: 'ttl' });
+  const ap = (u, w) => { let s = `M${X(u).toFixed(1)},${Y(0)}`; for (let i = 0; i <= 80; i++) { const v = u + (w - u) * i / 80; s += `L${X(v).toFixed(1)},${Y(f(v)).toFixed(1)}`; } return s + `L${X(w).toFixed(1)},${Y(0)}Z`; };
+  const from = (zPrevArea.a == null || instant) ? [ra, rb] : [zPrevArea.a, zPrevArea.b];
+  zPrevArea.a = ra; zPrevArea.b = rb;
+  if (instant) area.setAttribute('d', ap(ra, rb)); else tween(380, t => area.setAttribute('d', ap(lerp(from[0], ra, t), lerp(from[1], rb, t))));
+}
+function markCross(instant) {
+  const { neg, row, col } = zParts(zx.z);
+  showSide(neg ? 'n' : 'p');
+  $$('#zScroll .rowon, #zScroll .colon, #zScroll .sel, #zScroll .hon').forEach(e => e.classList.remove('rowon', 'colon', 'sel', 'hon'));
+  const tb = $(`#zScroll table[data-side="${neg ? 'n' : 'p'}"]`);
+  const r = Math.round(row * 10), c = Math.round(col * 100);
+  const tr = tb.querySelector(`tr[data-r="${r}"]`); if (!tr) return;
+  tr.classList.add('rowon'); tr.querySelector('th').classList.add('hon');
+  $$(`td[data-c="${c}"]`, tb).forEach(td => td.classList.add('colon'));
+  tb.querySelector(`thead th[data-c="${c}"]`).classList.add('hon');
+  const cell = document.getElementById(cellId(neg, row, col)); cell.classList.add('sel');
+  const sc = $('#zScroll'), cr = cell.getBoundingClientRect(), sr = sc.getBoundingClientRect();
+  sc.scrollTo({ top: sc.scrollTop + (cr.top - sr.top) - sc.clientHeight / 2 + cr.height / 2, left: sc.scrollLeft + (cr.left - sr.left) - sc.clientWidth / 2, behavior: instant || RM ? 'auto' : 'smooth' });
+}
+function updateZ(instant) {
+  const z = zx.z, { p, f, L } = zCalc();
+  const se = SE(), n = mue.n, a = Math.abs(z);
+  $('#zRes').innerHTML = `<div class="res-top"><span class="res-n" id="zResN">${pct(p)}</span><span class="res-f">área = ${fmt(p, 4)}</span></div><div class="f">${f}</div><p class="real">Lectura: ${L.txt}${zx.type === 'sym' ? ` y Φ(−${fmt(a)}) = ${fmt(tabla(-a), 4)}` : ''}</p>${zx.note ? `<p>${zx.note}</p>` : ''}`;
+  const rn = $('#zResN'); rn.dataset.v = instant ? p * 100 : (zx._last ?? p * 100); animNum(rn, p * 100, 2, ' %'); zx._last = p * 100;
+  const phr = (m, s) => {
+    const v = m + z * s;
+    if (zx.type === 'left') return `de ${fmt(v)} min o menos`;
+    if (zx.type === 'right') return `de más de ${fmt(v)} min`;
+    if (zx.type === 'mid') return z >= 0 ? `entre ${fmt(m)} y ${fmt(v)} min` : `entre ${fmt(v)} y ${fmt(m)} min`;
+    return `entre ${fmt(m - a * s)} y ${fmt(m + a * s)} min`;
+  };
+  const eq = (sym, s, sTxt, dec) => zx.type === 'sym' ? `${sym} = μ ± Z·${sTxt} = ${fmt(MU)} ± ${fmt(a)} × ${fmt(s, dec)} → <b>${fmt(MU - a * s)}</b> y <b>${fmt(MU + a * s)} min</b>` : `${sym} = μ + Z·${sTxt} = ${fmt(MU)} + (${fmt(z)}) × ${fmt(s, dec)} = <b>${fmt(MU + z * s)} min</b>`;
+  $('#zCase').innerHTML = `<div class="zc"><span class="flabel">En el caso · tiempo de un estudiante</span><div class="f">${eq('X', SD, 'σ', 2)}</div><p>Según el modelo, el <b>${pct(p)}</b> de los estudiantes tendría un viaje ${phr(MU, SD)}.</p></div><div class="zc"><span class="flabel">En el caso · promedio de ${n} estudiantes</span><div class="f">${eq('x̄', se, 'σ<sub>x̄</sub>', 4)}</div><p>El <b>${pct(p)}</b> de las muestras de ${n} tendría un promedio ${phr(MU, se)}.</p></div>`;
+  drawZ(instant, p);
+  markCross(instant);
+}
+function selectZ(z, o = {}) {
+  z = clamp(Math.round(z * 100) / 100, -3.49, 3.49); if (z === 0) z = 0;
+  zx.z = z; if (o.type) zx.type = o.type;
+  $('#zS').value = z; $('#zSo').textContent = fmt(z);
+  if (!o.fromInput) $('#zI').value = z.toFixed(2);
+  zSegSync();
+  updateZ(!!o.instant);
+  if (o.scroll) document.getElementById('tablaz').scrollIntoView({ behavior: RM ? 'auto' : 'smooth' });
+}
+function lookupP() {
+  const p = parseFloat($('#zP').value);
+  if (!(p > 0 && p < 1)) { zx.note = 'Escribe un área entre 0 y 1, por ejemplo 0,90.'; updateZ(true); return; }
+  let best = 0, bd = 9;
+  for (let i = -349; i <= 349; i++) { const z = i / 100, d = Math.abs(tabla(z) - p); if (d < bd - 1e-12) { bd = d; best = z; } }
+  zx.note = `Buscamos dentro de la tabla el valor más cercano a ${fmt(p, 4)}: Φ(${fmt(best)}) = ${fmt(tabla(best), 4)} → <b>Z ≈ ${fmt(best)}</b>. En minutos: X = ${fmt(MU)} + ${fmt(best)} × ${fmt(SD)} = <b>${fmt(MU + best * SD)} min</b>.`;
+  selectZ(best, { type: 'left' });
+}
+function initZ() {
+  buildZTable();
+  zSegSync = makeSeg($('#zType'), ZTYPES, () => zx.type, v => { zx.type = v; zx.note = ''; selectZ(zx.z); });
+  zSideSync = makeSeg($('#zSide'), [['n', 'Z negativos'], ['p', 'Z positivos']], () => zSide, v => showSide(v));
+  $('#zPre').innerHTML = ZPRE.map((it, i) => `<button type="button" class="chip" data-i="${i}">${it.l}</button>`).join('');
+  $('#zPre').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; const it = ZPRE[+b.dataset.i]; if (it.p != null) { $('#zP').value = it.p; lookupP(); } else { zx.note = ''; selectZ(it.z, { type: it.t }); } });
+  $('#zUsed').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { zx.note = ''; selectZ(parseFloat(b.dataset.z), { type: 'left' }); } });
+  $('#zS').addEventListener('input', e => { zx.note = ''; selectZ(parseFloat(e.target.value), { instant: true }); });
+  $('#zI').addEventListener('input', e => { const v = parseFloat(e.target.value); if (!isNaN(v)) { zx.note = ''; selectZ(v, { fromInput: true }); } });
+  $('#zPgo').addEventListener('click', lookupP);
+  $('#zP').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookupP(); } });
+  const sc = $('#zScroll');
+  const clearHv = () => { if (hvEls) hvEls.forEach(x => x.classList.remove('hv')); hvEls = null; };
+  sc.addEventListener('pointerover', e => { const td = e.target.closest('td'); clearHv(); if (!td) return; const tb = td.closest('table'); hvEls = [...td.parentElement.children, ...tb.querySelectorAll(`[data-c="${td.dataset.c}"]`)]; hvEls.forEach(x => x.classList.add('hv')); });
+  sc.addEventListener('pointerleave', clearHv);
+  sc.addEventListener('click', e => { const td = e.target.closest('td'); if (td) { zx.note = ''; selectZ(parseFloat(td.dataset.z), { type: zx.type === 'sym' || zx.type === 'mid' ? zx.type : 'left' }); } });
+  const svg = $('#zChart'); let dragging = false;
+  const zFrom = e => -3.6 + (svgX(svg, e) - 16) / (W - 32) * 7.2;
+  svg.addEventListener('pointerdown', e => { dragging = true; try { svg.setPointerCapture(e.pointerId); } catch (_) {} zx.note = ''; selectZ(zFrom(e), { instant: true }); });
+  svg.addEventListener('pointermove', e => { if (dragging) selectZ(zFrom(e), { instant: true }); });
+  ['pointerup', 'pointercancel'].forEach(ev => svg.addEventListener(ev, () => { dragging = false; }));
+  document.addEventListener('click', e => { const b = e.target.closest('.zgo'); if (!b) return; zx.note = ''; selectZ(parseFloat(b.dataset.z), { type: 'left', scroll: true }); });
+  refreshUsed(); selectZ(zx.z, { type: zx.type, instant: true });
+}
+
+/* ================= Cierre ================= */
+function initCierre() {
+  $('#cB').textContent = pct(1 - Math.pow(1 - 66 / 250, 5));
+  $('#cN').textContent = pct(r4(1 - tabla(zRound((40 - MU) / SD))));
+  const se = r4(SIG / 6 * fpcF(36));
+  $('#cM').textContent = pct(r4(tabla(zRound((40 - MU) / se)) - tabla(zRound((30 - MU) / se))));
+}
+
+/* ================= Ruta, contadores y revelado ================= */
+const STOPS = [['inicio', 'Inicio'], ['caso', 'Datos'], ['binomial', 'Binomial'], ['normal', 'Normal'], ['muestral', 'Muestral'], ['cierre', 'Cierre'], ['tablaz', 'Tabla Z']];
+function initRoute() {
+  const track = $('#track');
+  STOPS.forEach(([id, l], i) => { const a = document.createElement('a'); a.href = '#' + id; a.className = 'stop'; a.style.left = (i / (STOPS.length - 1) * 100) + '%'; a.innerHTML = `<i></i><span>${l}</span>`; track.appendChild(a); });
+  const stops = $$('.stop', track);
+  let ticking = false;
+  const upd = () => {
+    ticking = false;
+    const y = window.scrollY + 100;
+    const maxY = document.documentElement.scrollHeight - innerHeight + 100;
+    const tops = STOPS.map(([id]) => Math.min(document.getElementById(id).offsetTop, maxY));
+    let i = 0; while (i < tops.length - 1 && y >= tops[i + 1]) i++;
+    let p = i;
+    if (i < tops.length - 1) p += clamp((y - tops[i]) / Math.max(1, tops[i + 1] - tops[i]), 0, 1);
+    if (window.scrollY >= document.documentElement.scrollHeight - innerHeight - 4) { p = tops.length - 1; i = tops.length - 1; }
+    track.style.setProperty('--p', p / (tops.length - 1));
+    stops.forEach((s, j) => { s.classList.toggle('on', j === i); s.classList.toggle('past', j < i); });
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(upd); } }, { passive: true });
+  window.addEventListener('resize', upd);
+  upd();
+}
+function initCounters() {
+  if (RM) return;
+  $$('.count').forEach(e => { const to = +e.dataset.to, d = +e.dataset.dec; const t0 = performance.now(); const f = now => { const t = Math.min(1, (now - t0) / 1400); e.textContent = fmt(to * (1 - Math.pow(1 - t, 3)), d); if (t < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); });
+}
+function initReveal() {
+  if (RM || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.remove('pending'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+  $$('.reveal').forEach(e => { const r = e.getBoundingClientRect(); if (r.top > innerHeight) { e.classList.add('pending'); io.observe(e); } });
+}
+
+/* ================= Tema claro / oscuro ================= */
+function initTheme() {
+  const root = document.documentElement, btn = $('#themeBtn'), mq = window.matchMedia('(prefers-color-scheme: dark)');
+  try { const t = localStorage.getItem('tema'); if (t === 'dark' || t === 'light') root.dataset.theme = t; } catch (_) {}
+  const isDark = () => root.dataset.theme === 'dark' || (root.dataset.theme !== 'light' && mq.matches);
+  const sync = () => { const d = isDark(); btn.classList.toggle('dark', d); btn.querySelector('.tlabel').textContent = d ? 'Modo claro' : 'Modo oscuro'; btn.setAttribute('aria-label', d ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'); };
+  btn.addEventListener('click', () => { const next = isDark() ? 'light' : 'dark'; root.dataset.theme = next; try { localStorage.setItem('tema', next); } catch (_) {} sync(); });
+  if (mq.addEventListener) mq.addEventListener('change', sync);
+  new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  sync();
+}
+
+initTheme(); initCaso(); initBin(); initNor(); initApx(); initMue(); initCierre(); initZ(); initRoute(); initCounters(); initReveal();
+</script>
+</body>
+</html>
